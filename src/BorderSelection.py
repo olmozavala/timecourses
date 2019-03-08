@@ -22,16 +22,17 @@ def getBorder(img):
 
     return mask
 
-
-data_folder = '/media/osz1/DATA/Dropbox/UMIAMI/WorkUM/DianaProjects/ContractionsFromVideos/Data'
-output_folder = '/media/osz1/DATA/Dropbox/UMIAMI/WorkUM/DianaProjects/ContractionsFromVideos/Output'
+# data_folder = '/media/osz1/DATA/Dropbox/UMIAMI/WorkUM/DianaProjects/ContractionsFromVideos/Data'
+# output_folder = '/media/osz1/DATA/Dropbox/UMIAMI/WorkUM/DianaProjects/ContractionsFromVideos/Output'
+data_folder = '../Data'
+output_folder = '../Output'
 file_name = 'GD3T4control.avi'
 cap = cv2.VideoCapture(join(data_folder,file_name))
 
-mask = []
+mask = [] # It will contain a mask for each 'rectangle'
 mult_pos = [[179,x] for x in np.arange(1500,1900,50)]
 intensities = [[] for x in mult_pos]
-size_box = [40,7]
+size_box = [40,7] #
 frame_idx = 0
 frame_rate = 24
 
