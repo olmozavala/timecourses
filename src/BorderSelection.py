@@ -6,17 +6,18 @@ import matplotlib.pyplot as plt
 def getBorder(img):
     all_dims = img.shape
     mask = np.zeros(all_dims)
-    th1 = 50
-    th2 = 15
+    mean_val = np.mean(img[0:200,:], axis=0)
+    th_top = mean_val*.85
+    th_bot = mean_val*.35
     for cur_col in range(all_dims[1]):
         # Searching bottom up
         for cur_row in range(all_dims[0]-1,200,-1):
-            if img[cur_row,cur_col] > th2:
+            if img[cur_row,cur_col] > th_bot[cur_row]:
                 mask[cur_row,cur_col] = 1
                 break
         # Searching top bottom
         for cur_row in range(0,200):
-            if img[cur_row,cur_col] > th1:
+            if img[cur_row,cur_col] > th_top[cur_row]:
                 mask[cur_row,cur_col] = 1
                 break
 
