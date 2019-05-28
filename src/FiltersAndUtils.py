@@ -1,6 +1,30 @@
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
+from scipy.signal import butter, lfilter
+import matplotlib.pyplot as plt
+from scipy.signal import freqz
+
+def butter_bandpass(lowcut, highcut, fs, order=5):
+    '''
+    Creates the coefficients of the band pass filter
+    :param lowcut:
+    :param highcut:
+    :param fs: Sampling frequency
+    :param order: Order of the filter
+    :return:
+    '''
+    nyq = 0.5 * fs
+    low = lowcut / nyq
+    high = highcut / nyq
+    b, a = butter(order, [low, high], btype='band')
+    return b, a
+
+
+def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
+    ''' Filters the data'''
+    b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+    y = lfilter(b, a, data)
+    return y
 
 def smoothCurves(all_int, n):
     '''Smooths all the intensities by computing the average for every n points'''
