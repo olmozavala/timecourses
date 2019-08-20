@@ -3,31 +3,34 @@ import os
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.signal import medfilt
 from FiltersAndUtils import *
-from scipy.interpolate import *
+from Utils_Visualization import *
+from Utils_io import *
 
-def makeObj(name, interp_pts):
+def makeObj(name, top_edge_th, bottom_edge_th,
+            median_filter_size_top=5,
+            median_filter_size_bottom=5,
+            cubic_splines_pts_top=50,
+            cubic_splines_pts_bottom=100):
 
     vid = {
         'file_name': name, # Name of the file
-        'interp_pts': interp_pts
+        'top_edge_th': top_edge_th,
+        'bottom_edge_th': bottom_edge_th,
+        'medial_filter_size_top': median_filter_size_top,
+        'medial_filter_size_bottom': median_filter_size_bottom,
+        'cubic_splines_pts_top': cubic_splines_pts_top,
+        'cubic_splines_pts_bottom': cubic_splines_pts_bottom
     }
 
     return vid
 
 def checkDirs(output_folder):
-    cur_path = join(output_folder,'MaskArea')
-    if not(os.path.exists(cur_path)):
-        os.makedirs(cur_path)
-    cur_path = join(output_folder,'Curves')
-    if not(os.path.exists(cur_path)):
-        os.makedirs(cur_path)
-    cur_path = join(output_folder,'FilteredImages')
-    if not(os.path.exists(cur_path)):
-        os.makedirs(cur_path)
-    cur_path = join(output_folder,'Original')
-    if not(os.path.exists(cur_path)):
-        os.makedirs(cur_path)
+    saveDir(join(output_folder,'MaskArea'))
+    saveDir(join(output_folder,'Curves'))
+    saveDir(join(output_folder,'FilteredImages'))
+    saveDir(join(output_folder,'Original'))
 
 
 if __name__ == '__main__':
@@ -36,224 +39,209 @@ if __name__ == '__main__':
     # THis is the first file we must run. It iterates over the frames of the videos, obtains the top and bottom
     # contours and saves the bottom position, the area and the mean intensities for each column
 
-    # data_folder = '../Data/GD4'
-    data_folder = '/media/osz1/DATA/Dropbox/UMIAMI/WorkUM/DianaProjects/ContractionsFromVideos/Data/GD4'
-    output_folder = '../Output/GD4'
+    videos_path = 'GD3'
+    data_folder = F'/media/osz1/DATA/DianaVideos/{videos_path}'
+    # output_folder = F'../Output/{videos_path}'
+    output_folder = F'/media/osz1/DATA/DianaVideos/Output/{videos_path}'
     checkDirs(output_folder)
 
-    # %%
     videos=[]
-    # ================= OLD ==================
-    # videos.append(makeObj('ASalGD3M01H02ctrl2inj11AMdis3PM_3', 80, .83, .83, True))
-    # videos.append(makeObj('GD2_11AM_2', 150, .8, 0, True))
-    # videos.append(makeObj('GD3_11AM', 110, .8, 1.9, False))
-    # videos.append(makeObj('GD3T4control', 140, .8, 0, True))
-    # videos.append(makeObj('NP', 110, .6, 0, True))
-    # videos.append(makeObj('RGD3T4M01H01', 90, .8, .7, False))
-    # videos.append(makeObj('RDG3TEM01H01Sal1', 80, .83, .7, False))
 
-    # ================= GD3 ==================
-    # videos.append(makeObj('RDG3T4M01H01Sal1', -1, .83, .7, False))
-    # videos.append(makeObj('RDG3T4M01H01Sal1', -1, .85, .6, False))
-    # videos.append(makeObj('RDG3T4M01H02Sal1', -1, .8, .9, False))
-    # videos.append(makeObj('RGD3T4M01H01', -1, .83, .7, False))
-    # videos.append(makeObj('RGD3T4M01H02', -1, 1.10, .9, False))
-    # videos.append(makeObj('RGD3T4M02H01', -1, .83, .7, False))
-    # videos.append(makeObj('RGD3T4M02H01Sal', -1, .83, .7, False))
-    # videos.append(makeObj('RGD3T4M02H02', -1, .8, .8, False))
-    # videos.append(makeObj('RGD3T4M02H02Sal', -1, .8, .8, False))
-    # videos.append(makeObj('RGD3T4M03H01', -1, 1.1, 1.1, False))
-    # videos.append(makeObj('RGD3T4M03H01Sal', -1, .8, 1.0, False))
-    # videos.append(makeObj('RGD3T4M03H02', -1, 1.1, 1, False))
-    # videos.append(makeObj('RGD3T4M03H02Sal', -1, 1, 1, False))
-    # videos.append(makeObj('RGD4T4M01H01', -1, 1, 1.3, False))
-    # videos.append(makeObj('RGD4T4M01H01Sal2', -1, 1.3, 1.3, False))
+    def_top_th = 1600
+    def_bot_th = 1900
+    plot_every_n_frames = 10
+    pts_per_spline_top = 9 # A larger number will give a curve
+    k_size_time = 3# Used to smooth the vidoes (kernel size of a gaussian filter in time)
+    k_size_space = 5# Used to smooth the vidoes (kernel size of a gaussian filter in time)
 
-    # ================= GD4 ==================
-    # Order: name, mean_uterus_size, th_bot, th_top, only_bot):
-    videos.append(makeObj('RGD4T4M01H01Sal2',20))
-    videos.append(makeObj('RGD4T4M01H01',10)) # 8
-    videos.append(makeObj('RGD4T4M01H02',20))
-    videos.append(makeObj('RGD4T4M02H01MdSal2',10)) # 8
-    videos.append(makeObj('RGD4T4M02H02MdSal2',20))
-    videos.append(makeObj('RGD4T4M03H01Md',20))
-    videos.append(makeObj('RGD4T4M03MdH01Sal2',10)) # 10
-    videos.append(makeObj('RGD4T4M01H01Sal2',20))
-    videos.append(makeObj('RGD4T4M01H02Sal2',20))
-    videos.append(makeObj('RGD4T4M02H02Md',20))
-    videos.append(makeObj('RGD4T4M02MdH01',10)) #7
-    videos.append(makeObj('RGD4T4M03H02Md',20))
-    videos.append(makeObj('RGD4T4M03MdH02Sal2',20))
+    if videos_path == 'GD3':
+        # ================= GD3 ==================
+        videos.append(makeObj('RGD3T4M01H01',def_top_th*.8,def_bot_th))
+        videos.append(makeObj('RDG3T4M01H01Sal1',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD3T4M01H02',def_top_th*1.1,def_bot_th*.8))
+        videos.append(makeObj('RDG3T4M01H02Sal1',def_top_th*1.5,def_bot_th*.8))
+        videos.append(makeObj('RGD3T4M02H01',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD3T4M02H01Sal',def_top_th*.9,def_bot_th))
+        videos.append(makeObj('RGD3T4M02H02',def_top_th,def_bot_th*1.5))
+        videos.append(makeObj('RGD3T4M02H02Sal',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD3T4M03H01',def_top_th*.7,def_bot_th))
+        videos.append(makeObj('RGD3T4M03H01Sal',def_top_th*.7,def_bot_th*.8))
+        videos.append(makeObj('RGD3T4M03H02',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD3T4M03H02Sal',def_top_th*.9,def_bot_th*.8))
+        videos.append(makeObj('RGD4T4M01H01',def_top_th*.6,def_bot_th*.7))
+        videos.append(makeObj('RGD4T4M01H01Sal2',def_top_th*.55,def_bot_th*.45))
+        videos.append(makeObj('RGD3T4M06H01_2',def_top_th*1.5,def_bot_th*.45))
+        videos.append(makeObj('RGD3T4M06H01Sal_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD3T4M06H02_2',def_top_th*.5,def_bot_th))
+        videos.append(makeObj('RGD3T4M06H02Sal_2',def_top_th*1.5,def_bot_th*1.2))
+        videos.append(makeObj('RGD3T4M07H01_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD3T4M07H01Sal_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD3T4M07H02_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD3T4M07H02Sal_2',def_top_th,def_bot_th))
+    else:
+        # ================= GD4 ==================
+        # Order: name, mean_uterus_size, th_bot, th_top, only_bot):
+        videos.append(makeObj('RGD4T4M01H01Sal2',def_top_th,def_bot_th*.6))
+        videos.append(makeObj('RGD4T4M01H01',def_top_th*.7,def_bot_th*.6))
+        videos.append(makeObj('RGD4T4M01H02',def_top_th*.7,def_bot_th*.7))
+        videos.append(makeObj('RGD4T4M02H01MdSal2',def_top_th*.8,def_bot_th*.8))
+        videos.append(makeObj('RGD4T4M02H02MdSal2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD4T4M03H01Md',def_top_th*.35,def_bot_th*.55))
+        videos.append(makeObj('RGD4T4M03MdH01Sal2',def_top_th*.45,def_bot_th*.5)) # 10
+        videos.append(makeObj('RGD4T4M01H02Sal2',def_top_th,def_bot_th*.85))
+        videos.append(makeObj('RGD4T4M02H02Md',def_top_th*.85,def_bot_th))
+        videos.append(makeObj('RGD4T4M02MdH01',def_top_th*.8,def_bot_th*.9)) #7
+        videos.append(makeObj('RGD4T4M03H02Md',def_top_th*.45,def_bot_th*.7))
+        videos.append(makeObj('RGD4T4M03MdH02Sal2',def_top_th*.5,def_bot_th*.6))
+        videos.append(makeObj('RGD4T4M06H01_2',def_top_th*1.2,def_bot_th*.6))
+        videos.append(makeObj('RGD4T4M06H01Sal_2',def_top_th,def_bot_th*.6))
+        videos.append(makeObj('RGD4T4M06H02_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD4T4M06SalH02_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD4T4M07H01_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD4T4M07H02_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD4T4M07SalH01_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD4T4M07SalH02_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD4T4M08H01_2',def_top_th,def_bot_th*.8))
+        videos.append(makeObj('RGD4T4M08H02_2',def_top_th*1.2,def_bot_th*1.1))
+        videos.append(makeObj('RGD4T4M08H02Sal_2',def_top_th*1.5,def_bot_th))
+        videos.append(makeObj('RGD4T4M08SalH01_2',def_top_th*1.1,def_bot_th*1.2))
+        videos.append(makeObj('RGD4T4M09H01_2',def_top_th,def_bot_th*.8))
+        videos.append(makeObj('RGD4T4M09H01_3',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD4T4M09H02_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD4T4M09H02_3',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD4T4M09SalH01_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD4T4M09SalH01_3',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD4T4M09SalH02_2',def_top_th,def_bot_th*.8))
+        videos.append(makeObj('RGD4T4M09SalH02_3',def_top_th,def_bot_th))
 
-    plot_every_n_frames = 20
 
     for i,cur_vid in enumerate(videos):
-        file_name = cur_vid['file_name']
-        print(F'Working with file {file_name}')
         try:
-            cap = cv2.VideoCapture(join(data_folder,file_name+'.avi'))
-            rows,cols,frames = getDims(cap) # Getting size of video
-            cap.release()
+            file_name = cur_vid['file_name']
+            print(F'******** {file_name} *************')
+            pts_per_spline_top = cur_vid['cubic_splines_pts_top']
+            pts_per_spline_bottom = cur_vid['cubic_splines_pts_bottom']
 
-            cap = cv2.VideoCapture(join(data_folder,file_name+'.avi'))
-            all_video = np.zeros((frames, rows, cols))
+            top_edge_th = cur_vid['top_edge_th']
+            bottom_edge_th = cur_vid['bottom_edge_th']
 
-            frame_idx = 0 # Index for each frame
-            frame_rate = 10# Frame rate, to plot the proper time in each plot
+            median_filt_size_top = cur_vid['medial_filter_size_top']
+            median_filt_size_bottom = cur_vid['medial_filter_size_bottom']
 
-            print('Reading data...')
-            while(frame_idx < frames):
-                # Obtains a frame for each vide (specific CV structure)
-                ret, frame = cap.read()
-                try:
-                    # Gets the frame as an gray scale numpy matrix
-                    all_video[frame_idx,:,:] = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                    frame_idx+=1
+            print('\tReading Data....')
+            all_video, rows, cols, frames = readFramesFromVideoFile(join(data_folder,file_name+'.avi'))
+            # frames = 100  # Just to make it faster for debugging purposes
+            # all_video = all_video[0:frames,:,:]
+            cubi_spline_pts_top = int((cols/1000) * pts_per_spline_top)
+            cubi_spline_pts_bottom = int((cols/1000) * pts_per_spline_bottom)
+            print(F'Number of cubic splines points: {cubi_spline_pts_top}')
+            print('\tDone!')
 
-                except Exception as e:
-                    print(F'---Frame {frame_idx} failed: {e} ----')
-                    frame_idx+=1
-                    continue
+            print('\tSmoothing Data...')
+            # Blurs the image in the X and Time dimensions
+            # plotMultipleImages([all_video[0,:,:]], ['Temp'])
+            smooth = gaussianBlurXandZ(all_video, k_size_time, k_size_space)
+            # plotMultipleImages([smooth[0,:,:]], ['Temp'])
 
-            cap.release()
+            smooth = all_video  # Just for debugging
+            print('\tDone!')
+
+            top_pos = np.zeros((frames,cols))
+            bottom_pos = np.zeros((frames,cols))
+            mean_intensities = np.zeros((frames,cols))
+            area_vals = np.zeros((frames,cols))
+
+            print('\tComputing top and bottom positions....')
+            for cur_frame in range(frames):
+                img = smooth[cur_frame,:,:]
+                c_sob = computeEdgesSobel(img, 5)
+
+                # Selects the top position when the 'cumulative' edges overpass a threshold
+                top_pos[cur_frame,:]= np.argmax(np.cumsum(c_sob, axis=0) > top_edge_th,axis=0)
+                bottom_pos[cur_frame,:]= rows - np.argmax(np.cumsum(np.flip(c_sob,axis=0), axis=0)<-bottom_edge_th, axis=0)
+
+                # For plotting BEFORE the median filter
+                # if (cur_frame % plot_every_n_frames) == 0:
+                #     plotImageAndScatter(all_video[cur_frame, :, :], [top_pos[cur_frame, :], bottom_pos[cur_frame, :]], title=F'{file_name} {cur_frame}',
+                #                         savefig=True, output_folder=join(output_folder,'MaskArea',file_name),
+                #                         file_name = F'{file_name}_frame_{cur_frame:04d}_BeforeMedian.jpg')
+
+                # ------------ Median filter on the obtained curves --------
+                top_pos[cur_frame,:] = medfilt(top_pos[cur_frame], median_filt_size_top)
+                bottom_pos[cur_frame,:] = medfilt(bottom_pos[cur_frame], median_filt_size_bottom)
+
+                # For plotting BEFORE the smoothing
+                # if (cur_frame % plot_every_n_frames) == 0:
+                #     plotImageAndScatter(all_video[cur_frame, :, :], [top_pos[cur_frame, :], bottom_pos[cur_frame, :]], title=F'{file_name} {cur_frame}',
+                #                         savefig=True, output_folder=join(output_folder,'MaskArea',file_name),
+                #                         file_name = F'{file_name}_frame_{cur_frame:04d}_BeforeSCubic.jpg')
+
+                # ------------ Smoothing curve of top positions -------------
+                top_pos[cur_frame,:] = cubicSplines(top_pos[cur_frame,:], cubi_spline_pts_top)
+                # ------------ Smoothing curve of bottom positions -------------
+                bottom_pos[cur_frame,:] = cubicSplines(bottom_pos[cur_frame,:], cubi_spline_pts_bottom)
+
+                # Plots the obtained mask and edges, only once every plot_every_n_frames frames
+                if (cur_frame % plot_every_n_frames) == 0: # Only plot once every x frames
+                    plotImageAndScatter(all_video[cur_frame, :, :], [top_pos[cur_frame, :], bottom_pos[cur_frame, :]], title=F'{file_name} {cur_frame}',
+                              savefig=True, output_folder=join(output_folder,'MaskArea',file_name),
+                              file_name = F'{file_name}_frame_{cur_frame:04d}.jpg')
+                    if cur_frame == 0:
+                        plotMultipleImages([c_sob], output_folder=join(output_folder, 'MaskArea', file_name),
+                                           file_name='EdgesExample.jpg' )
+
             print('Done!')
 
+            # Blurring the final positions
+            # top_pos = cv2.blur(top_pos, (10,10))
+            # bottom_pos = cv2.blur(bottom_pos, (10,10))
+
+            bottom_pos = bottom_pos.astype(int)
+            top_pos = top_pos.astype(int)
+
+            print('Computing means intensities and areas!')
+            for cur_frame in range(frames):
+                mask = np.zeros((rows,cols))
+                for cur_col in range(cols):
+                    mask[top_pos[cur_frame,cur_col]:bottom_pos[cur_frame,cur_col],cur_col] =  1
+
+                mean_intensities[cur_frame,:] = np.true_divide(all_video[cur_frame,:,:].sum(0), (mask!=False).sum(0))
+                # if (cur_frame % plot_every_n_frames) == 0: # Only plot once every x frames
+                #     plotImageAndMask(all_video[cur_frame,:,:],mean_intensities[cur_frame,:],savefig=True,
+                #                         output_folder=join(output_folder,'Mask_Area'),
+                #                         file_name = F'{file_name}_Mask_frame_{cur_frame:04d}.jpg')
+
+            area_vals = bottom_pos - top_pos
+            print('Done!')
+
+            print('Saving results...')
+            final_folder = join(output_folder,'Original',file_name)
+            saveDir(final_folder)
+
+            plt.matshow(mean_intensities)
+            plt.title(F'{file_name} Mean Intensities')
+            plt.savefig(join(final_folder,F'{file_name}_Mean_intensities.jpg'), bbox_inches='tight')
+            plt.close()
+
+            plt.matshow(bottom_pos)
+            plt.title(F'{file_name} Bottom Positions')
+            plt.savefig(join(final_folder,F'{file_name}_Bottom_positions.jpg'), bbox_inches='tight')
+            plt.close()
+
+            plt.matshow(top_pos)
+            plt.title(F'{file_name} Top Positions')
+            plt.savefig(join(final_folder,F'{file_name}_Top_positions.jpg'), bbox_inches='tight')
+            plt.close()
+
+            plt.matshow(area_vals)
+            plt.title(F'{file_name} Area')
+            plt.savefig(join(final_folder,F'{file_name}_Area.jpg'), bbox_inches='tight')
+            plt.close()
+
+            np.savetxt(join(final_folder,F'{file_name}_Mean_intensities.csv'), mean_intensities,fmt='%10.3f', delimiter=',')
+            np.savetxt(join(final_folder,F'{file_name}_Bottom_positions.csv'), bottom_pos,fmt='%10.3f', delimiter=',')
+            np.savetxt(join(final_folder,F'{file_name}_Top_positions.csv'), top_pos,fmt='%10.3f', delimiter=',')
+            np.savetxt(join(final_folder,F'{file_name}_Area.csv'), area_vals,fmt='%10.3f', delimiter=',')
+            print('Done!!!')
         except Exception as e:
-            print(F'---Failed for video {file_name} failed: {e} ----')
-
-        print('Smoothing original frames!')
-        g_size = 11 # Smoothing size
-        smooth = np.zeros(all_video.shape)
-        for cur_frame in range(frames):
-            smooth[cur_frame,:,:] = cv2.GaussianBlur(all_video[cur_frame,:,:], (g_size,g_size), 0)
-        for cur_col in range(cols):
-            smooth[:,:,cur_col] = cv2.GaussianBlur(smooth[:,:,cur_col], (g_size,g_size), 0)
-
-        print('Done!')
-
-        top_pos = np.zeros((frames,cols))
-        bottom_pos = np.zeros((frames,cols))
-        mean_intensities = np.zeros((frames,cols))
-        area_vals = np.zeros((frames,cols))
-
-        print('Smoothing resulting positions to avoid spikes!')
-        for cur_frame in range(frames):
-            img = all_video[cur_frame,:,:]
-            # Trying to use sobel. Amost there, but hte results are similar
-            sobelx = cv2.Sobel(img,cv2.CV_64F,0,1,ksize=5)
-            sobely = cv2.Sobel(img,cv2.CV_64F,1,0,ksize=5)
-
-            c_sob = 0
-            c_sob = 2*sobelx + sobely
-
-            bottom_pos[cur_frame,:]= np.argmin(c_sob, axis=0)
-            top_pos[cur_frame,:]= np.argmax(c_sob, axis=0)
-            # if (cur_frame % plot_every_n_frames) == 0: # Only plot once every x frames
-            #     plt.imshow(img)
-            #     plt.title(F'{cur_frame}')
-            #     plt.show()
-            #     plt.imshow(c_sob)
-            #     plt.title(F'{cur_frame}')
-            #     plt.show()
-
-            # In this case we need to fix the top values
-            # if not(cur_vid['use_max_sob']):
-
-            # ------------ Smoothing top positions -------------
-            tot_pts = cur_vid['interp_pts']
-            x = np.linspace(0,cols,tot_pts,dtype=np.int)
-            x_range = int(x[2] - x[1])
-            y = np.zeros(x.shape)
-            c_x = int(x_range/2)
-            y[0] = np.mean(top_pos[cur_frame,0:c_x])
-            for x_idx in range(1,tot_pts-1):
-                y[x_idx] = np.mean(top_pos[cur_frame,c_x:c_x+x_range])
-                c_x+=x_range
-            y[-1] = np.mean(top_pos[cur_frame,c_x:-1])
-
-            f2 = interp1d(x, y, kind='cubic')
-            xnew = np.linspace(0, cols, cols, dtype=np.int)
-
-            # plt.plot(xnew, top_pos[cur_frame,:], '--')
-            # plt.scatter(x, y)
-            # plt.plot(xnew, f2(xnew), '--')
-            # plt.show()
-            top_pos[cur_frame,:] = f2(xnew)
-
-            # ------------ Smoothing bottom positions -------------
-            tot_pts = 35
-            x = np.linspace(0,cols,tot_pts,dtype=np.int)
-            x_range = int(x[2] - x[1])
-            y = np.zeros(x.shape)
-            c_x = int(x_range/2)
-            y[0] = np.mean(bottom_pos[cur_frame,0:c_x])
-            for x_idx in range(1,tot_pts-1):
-                y[x_idx] = np.mean(bottom_pos[cur_frame, c_x:c_x+x_range])
-                c_x += x_range
-            y[-1] = np.mean(bottom_pos[cur_frame,c_x:-1])
-            xnew = np.linspace(0, cols, cols, dtype=np.int)
-
-            f2 = interp1d(x, y, kind='cubic')
-            bottom_pos[cur_frame,:] = f2(xnew)
-
-            # if cur_vid['from_half']:
-            #     top_pos[cur_frame,int(cols/2):]= np.argmax(c_sob[:,int(cols/2):]>cur_vid['max_sob_value'], axis=0)
-            # else:
-            #     top_pos[cur_frame,:]= np.argmax(c_sob>cur_vid['max_sob_value'], axis=0)
-
-        print('Done!')
-
-        # Blurring the final positions
-        top_pos = cv2.blur(top_pos, (10,10))
-        bottom_pos = cv2.blur(bottom_pos, (10,10))
-
-        bottom_pos = bottom_pos.astype(int)
-        top_pos = top_pos.astype(int)
-
-        print('Computing means and areas!')
-        for cur_frame in range(frames):
-            mask = np.zeros((rows,cols))
-            for cur_col in range(cols):
-                mask[top_pos[cur_frame,cur_col]:bottom_pos[cur_frame,cur_col],cur_col] =  1
-
-            mean_intensities[cur_frame,:] = np.true_divide(all_video[cur_frame,:,:].sum(0), (mask!=False).sum(0))
-
-            if (cur_frame % plot_every_n_frames) == 0: # Only plot once every x frames
-                print(F"Frame {cur_frame}")
-                plt.imshow(all_video[cur_frame,:,:])
-                plt.title(F'{file_name} Frame:{cur_frame}')
-                plt.contour(mask, colors='r', linewidths=.3)
-                plt.savefig(join(output_folder,'MaskArea',F'{file_name}_Mask_frame_{cur_frame:04d}.jpg'),
-                                bbox_inches='tight')
-                plt.close()
-                # plt.show()
-        area_vals = bottom_pos - top_pos
-        print('Done!')
-
-        print('Saving results...')
-        plt.matshow(mean_intensities)
-        plt.title(F'{file_name}')
-        plt.savefig(join(output_folder,F'{file_name}_Mean_intensities.jpg'), bbox_inches='tight')
-        plt.close()
-
-        plt.matshow(bottom_pos)
-        plt.title(F'{file_name}')
-        plt.savefig(join(output_folder,F'{file_name}_Bottom_positions.jpg'), bbox_inches='tight')
-        plt.close()
-
-        plt.matshow(top_pos)
-        plt.title(F'{file_name}')
-        plt.savefig(join(output_folder,F'{file_name}_Top_positions.jpg'), bbox_inches='tight')
-        plt.close()
-
-        plt.matshow(area_vals)
-        plt.title(F'{file_name}')
-        plt.savefig(join(output_folder,F'{file_name}_Area.jpg'), bbox_inches='tight')
-        plt.close()
-
-        np.savetxt(join(output_folder,F'{file_name}_Mean_intensities.csv'), mean_intensities,fmt='%10.3f', delimiter=',')
-        np.savetxt(join(output_folder,F'{file_name}_Bottom_positions.csv'), bottom_pos,fmt='%10.3f', delimiter=',')
-        np.savetxt(join(output_folder,F'{file_name}_Top_positions.csv'), top_pos,fmt='%10.3f', delimiter=',')
-        np.savetxt(join(output_folder,F'{file_name}_Area.csv'), area_vals,fmt='%10.3f', delimiter=',')
-        print('Done!!!')
-
+            print(F' ERROR failed for {cur_vid}: {e}')

@@ -1,18 +1,32 @@
 from os.path import join
 
-import plotly
-import plotly.graph_objs as go
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
 from FiltersAndUtils import *
+from Utils_io import *
+from Utils_Visualization import *
+import cv2
 
 def makeObj(name):
     vid = {
         'file_name':name, # Name of the file
     }
     return vid
+
+def computeExtent(img):
+    fps = 2
+    pix_per_mil = 56
+
+    frames, pixels = img.shape
+    miny = 0
+    maxy = frames/fps
+
+    minx = 0
+    maxx = pixels/pix_per_mil
+
+    return [minx,maxx,maxy,miny]
 
 def bandPassFilter(df):
     f = 5 # 5 Frames por segundo
@@ -41,75 +55,161 @@ def bandPassFilter(df):
 if __name__ == '__main__':
     # This is the second file that needs to be executed. It substract the low frequencies and removes high frecuencies.
 
-    # data_folder = '/home/olmozavala/Dropbox/UMIAMI/WorkUM/DianaProjects/ContractionsFromVideos/Output'
-    # output_folder = '/home/olmozavala/Dropbox/UMIAMI/WorkUM/DianaProjects/ContractionsFromVideos/Output/Curves'
-    data_folder = '../Output/Original'
-    output_folder = '../Output/FilteredImages'
+    gd_video = 'GD3'
+    input_folder = '/media/osz1/DATA/DianaVideos/Output'
+    output_folder_original = '/media/osz1/DATA_Old/Diana_Videos_STEP2'
+    videos=[]
+    plot_every_n_frames = 10
 
-    # video_names = ['RDG3T4M01H01Sal1','RDG3T4M01H02Sal1','RGD3T4M01H01','RGD3T4M01H02','RGD3T4M02H01',
-    #                'RGD3T4M02H01Sal','RGD3T4M02H02','RGD3T4M02H02Sal','RGD3T4M03H01','RGD3T4M03H01Sal',
-    #                'RGD3T4M03H02','RGD3T4M03H02Sal','RGD4T4M01H01','RGD4T4M01H01Sal2']
+    if gd_video == 'GD3':
+        # ================= GD3 ==================
+        # videos.append(makeObj('RGD3T4M01H01'))
+        # videos.append(makeObj('RDG3T4M01H01Sal1'))
+        # videos.append(makeObj('RGD3T4M01H02'))
+        # videos.append(makeObj('RDG3T4M01H02Sal1'))
+        # videos.append(makeObj('RGD3T4M02H01'))
+        # videos.append(makeObj('RGD3T4M02H01Sal'))
+        # videos.append(makeObj('RGD3T4M02H02'))
+        # videos.append(makeObj('RGD3T4M02H02Sal'))
+        # videos.append(makeObj('RGD3T4M03H01'))
+        # videos.append(makeObj('RGD3T4M03H01Sal'))
+        # videos.append(makeObj('RGD3T4M03H02'))
+        # videos.append(makeObj('RGD3T4M03H02Sal'))
+        videos.append(makeObj('RGD3T4M06H01_2'))
+        videos.append(makeObj('RGD3T4M06H01Sal_2'))
+        videos.append(makeObj('RGD3T4M06H02_2'))
+        videos.append(makeObj('RGD3T4M06H02Sal_2'))
+        videos.append(makeObj('RGD3T4M07H01_2'))
+        videos.append(makeObj('RGD3T4M07H01Sal_2'))
+        videos.append(makeObj('RGD3T4M07H02_2'))
+        videos.append(makeObj('RGD3T4M07H02Sal_2'))
+    else:
+        # ================= GD4 ==================
+        # Order: name, mean_uterus_size, th_bot, th_top, only_bot):
+        videos.append(makeObj('RGD4T4M01H01'))
+        videos.append(makeObj('RGD4T4M01H01Sal2'))
+        videos.append(makeObj('RGD4T4M01H02'))
+        videos.append(makeObj('RGD4T4M02H01MdSal2'))
+        videos.append(makeObj('RGD4T4M02H02MdSal2'))
+        videos.append(makeObj('RGD4T4M03H01Md'))
+        videos.append(makeObj('RGD4T4M03MdH01Sal2'))
+        videos.append(makeObj('RGD4T4M01H02Sal2'))
+        videos.append(makeObj('RGD4T4M02H02Md'))
+        videos.append(makeObj('RGD4T4M02MdH01'))
+        videos.append(makeObj('RGD4T4M03H02Md'))
+        videos.append(makeObj('RGD4T4M03MdH02Sal2'))
+        videos.append(makeObj('RGD4T4M06H01_2'))
+        videos.append(makeObj('RGD4T4M06H01Sal_2'))
+        videos.append(makeObj('RGD4T4M06H02_2'))
+        videos.append(makeObj('RGD4T4M06SalH02_2'))
+        videos.append(makeObj('RGD4T4M07H01_2'))
+        videos.append(makeObj('RGD4T4M07H02_2'))
+        videos.append(makeObj('RGD4T4M07SalH01_2'))
+        videos.append(makeObj('RGD4T4M07SalH02_2'))
+        videos.append(makeObj('RGD4T4M08H01_2'))
+        videos.append(makeObj('RGD4T4M08H02_2'))
+        videos.append(makeObj('RGD4T4M08H02Sal_2'))
+        videos.append(makeObj('RGD4T4M08SalH01_2'))
+        videos.append(makeObj('RGD4T4M09H01_2'))
+        videos.append(makeObj('RGD4T4M09H01_3'))
+        videos.append(makeObj('RGD4T4M09H02_2'))
+        videos.append(makeObj('RGD4T4M09H02_3'))
+        videos.append(makeObj('RGD4T4M09SalH01_2'))
+        videos.append(makeObj('RGD4T4M09SalH01_3'))
+        videos.append(makeObj('RGD4T4M09SalH02_2'))
+        videos.append(makeObj('RGD4T4M09SalH02_3'))
 
-    video_names = [ 'RGD4T4M01H01.avi','RGD4T4M02H01MdSal2.avi','RGD4T4M03H01Md.avi','RGD4T4M01H01Sal2.avi',
-                    'RGD4T4M02H02Md.avi','RGD4T4M03H02Md.avi','RGD4T4M01H02.avi','RGD4T4M02H02MdSal2.avi',
-                    'RGD4T4M03MdH01Sal2.avi','RGD4T4M01H02Sal2.avi','RGD4T4M02MdH01.avi','RGD4T4M03MdH02Sal2.avi']
-
-    videos=[ makeObj(x) for x in video_names ]
-
-    # f_types = ['Bottom_positions','Mean_intensities','Top_positions','Area']
-    f_types = ['Area']
+    # f_types = ['Area','Bottom_positions','Mean_intensities','Top_positions']
+    f_types = ['Area','Bottom_positions','Mean_intensities']
 
     for i,cur_vid in enumerate(videos):
-        for j,cur_f_type in enumerate(f_types):
-            file_name = cur_vid['file_name']
+        file_name = cur_vid['file_name']
+        data_folder = F'{input_folder}/{gd_video}/Original/{file_name}'
+        output_folder = F'{input_folder}/{gd_video}/FilteredImages/{file_name}/'
+        saveDir(output_folder)
 
+        for j,cur_f_type in enumerate(f_types):
             df = pd.read_csv(join(data_folder,file_name+'_'+cur_f_type+'.csv'), dtype=np.float32)
             rows,cols = df.shape
 
-            clean_intensities = np.zeros((rows,cols))
+            original_values = df.values
             print(F'Working with file {file_name} filter {cur_f_type}')
-            print('Smoothing the curves...')
+
+            print(F'Saving original data...')
+            # Save as JPG
+            new_file_name = join(output_folder,F'{file_name}_{cur_f_type}_Original')
+            title=F'{file_name}  {cur_f_type} Original'
+            original_norm = (original_values - np.amin(original_values))/np.ptp(original_values)
+            # plotFinalFigures(original_values, title, new_file_name+'.jpg',computeExtent(original_values))
+            plotFinalFigures(original_values, title, new_file_name+'.jpg',[])
+
+            # Save original data as HTML
+            # title=F'{file_name} {cur_f_type}'
+            # html_file_name = F'{new_file_name}.html'
+            # plotHeatmatPlotty(original_values, rows, cols, title, html_file_name)
+
+            k = 21
+            # Save as Edges
+            title=F'{file_name} {cur_f_type} horizontal edge '
+            new_file_name = join(output_folder,F'{file_name}_{cur_f_type}_Horizontal_Edge_Original')
+            edge = cv2.Sobel(original_values,cv2.CV_64F,0,1,ksize=k)
+            plotFinalFigures(edge, title, new_file_name+'.jpg',computeExtent(edge))
+            plotHeatmatPlotty(edge, rows, cols, title, new_file_name+'.html')
+            # np.savetxt(F'{new_file_name}.csv', edge,fmt='%10.3f', delimiter=',')
+
+            k = 31
+            title=F'{file_name} {cur_f_type} vertical edge original'
+            new_file_name = join(output_folder,F'{file_name}_{cur_f_type}_Vertical_Edge')
+            edge = cv2.Sobel(original_values,cv2.CV_64F,1,0,ksize=k)
+            edge = (edge - np.amin(edge))/np.ptp(edge)
+            # plotFinalFigures(edge, title, new_file_name+'.jpg',computeExtent(edge))
+            plotFinalFigures(edge, title, new_file_name+'.jpg',[])
+            plotHeatmatPlotty(edge, rows, cols, title, new_file_name+'.html')
+            np.savetxt(F'{new_file_name}.csv', edge,fmt='%10.3f', delimiter=',')
+            continue
+
+            print(F'Done!')
 
             # bandPassFilter(df) # If we want to properly do a bandpass filter
-
-            intensities = cv2.GaussianBlur(intensities, (5, 5), 0)
+            print(F'Filtering the data...')
+            clean_intensities = np.zeros((rows,cols))
             for frame in df.index.values:
-                intensities = df.loc[frame].values
+                intensities = original_values[frame,:]
                 low_freq = smoothSingleCurve(intensities, 40) # Gets low frequencies
-                # removed_low = intensities - low_freq
-                # clean_intensities[frame,:]= smoothSingleCurve(removed_low, 3) # Removes high frequencies
+                removed_low = intensities - low_freq
+                clean_intensities[frame,:]= smoothSingleCurve(removed_low, 3) # Removes high frequencies
                 # clean_intensities[frame,:]= intensities
                 # clean_intensities[frame,:]= removed_low
                 # clean_intensities[frame,:] = smoothSingleCurve(intensities, 4) # Removes high frequencies
+            print(F'Done!')
 
-                # For plotting and saving single curve
-                title=F'Frame {frame} file {file_name}'
-                plt.figure(figsize=(15,5))
-                plt.plot(range(len(clean_intensities)),clean_intensities)
-                plt.title(title)
-                plt.xlabel('Seconds')
-                plt.ylabel('Intensity')
-                plt.grid()
-                output_file_name = join(output_folder,F'{file_name}_{cur_f_type}_{frame:04d}.png')
-                plt.savefig(output_file_name)
-                plt.show()
-                plt.close()
-
-            # Using plotly
+            print(F'Saving filtered data...')
+            # Save as JPG
             new_file_name = join(output_folder,F'{file_name}_{cur_f_type}_Filtered')
-            plt.matshow(clean_intensities)
-            plt.savefig(F'{new_file_name}.jpg', bbox_inches='tight')
-            plt.close()
+            title=F'{file_name}   Filtered'
+            plotFinalFigures(clean_intensities, title, new_file_name+'.jpg',computeExtent(clean_intensities))
+
+            # Save as CSV
             np.savetxt(F'{new_file_name}.csv', clean_intensities,fmt='%10.3f', delimiter=',')
 
-            data= go.Heatmap(z=clean_intensities,
-                               x=np.arange(cols),
-                               y=np.arange(rows))
-            layout= go.Layout(
-                        title=F'{file_name}_{cur_f_type}'
-                        )
+            # Save as HTML
+            title=F'{file_name} {cur_f_type}'
+            html_file_name = F'{new_file_name}.html'
+            plotHeatmatPlotty(clean_intensities, rows, cols, title, html_file_name)
 
-            fig = go.Figure(data=[data],layout=layout)
-            plotly.offline.plot(fig, filename=F'{new_file_name}.html', auto_open=False)
+            # Save as Edges
+            title=F'{file_name} {cur_f_type} horizontal edge filtered'
+            new_file_name = join(output_folder,F'{file_name}_{cur_f_type}_Horizontal_Edge_Filtered')
+            edge = cv2.Sobel(clean_intensities,cv2.CV_64F,0,1,ksize=k)
+            plotFinalFigures(edge, title, new_file_name+'.jpg',computeExtent(edge))
+            plotHeatmatPlotty(edge, rows, cols, title, new_file_name+'.html')
 
+            title=F'{file_name} {cur_f_type} vertical edge filtered'
+            new_file_name = join(output_folder,F'{file_name}_{cur_f_type}_Vertical_Edge_Filtered')
+            edge = cv2.Sobel(clean_intensities,cv2.CV_64F,1,0,ksize=k)
+            plotFinalFigures(edge, title, new_file_name+'.jpg',computeExtent(edge))
+            plotHeatmatPlotty(edge, rows, cols, title, new_file_name+'.html')
+
+            # Save as CSV
+            np.savetxt(F'{new_file_name}.csv', edge,fmt='%10.3f', delimiter=',')
     print("Done!!!")
