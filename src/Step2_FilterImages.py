@@ -53,12 +53,11 @@ def bandPassFilter(df):
     plt.show()
 
 if __name__ == '__main__':
-    # This is the second file that needs to be executed. It substract the low frequencies and removes high frecuencies.
+    # This is the second file that needs to be executed. It subtracts the low frequencies and removes high frecuencies.
 
-    gd_video = 'GD3'
-    input_folder = '/media/osz1/DATA/DianaVideos/Output'
-    output_folder_original = '/media/osz1/DATA_Old/Diana_Videos_STEP2'
-    videos=[]
+    gd_video = 'GD4'
+    input_folder = '/data/DianaVideosOutput'
+    videos = []
     plot_every_n_frames = 10
 
     if gd_video == 'GD3':
@@ -119,10 +118,10 @@ if __name__ == '__main__':
         videos.append(makeObj('RGD4T4M09SalH02_2'))
         videos.append(makeObj('RGD4T4M09SalH02_3'))
 
-    # f_types = ['Area','Bottom_positions','Mean_intensities','Top_positions']
-    f_types = ['Area','Bottom_positions','Mean_intensities']
+    #f_types = ['Area', 'Bottom_positions', 'Mean_intensities', 'Top_positions']
+    f_types = ['Area', 'Bottom_positions', 'Mean_intensities']
 
-    for i,cur_vid in enumerate(videos):
+    for i, cur_vid in enumerate(videos):
         file_name = cur_vid['file_name']
         data_folder = F'{input_folder}/{gd_video}/Original/{file_name}'
         output_folder = F'{input_folder}/{gd_video}/FilteredImages/{file_name}/'

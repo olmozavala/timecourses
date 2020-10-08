@@ -40,9 +40,8 @@ if __name__ == '__main__':
     # contours and saves the bottom position, the area and the mean intensities for each column
 
     videos_path = 'GD3'
-    data_folder = F'/media/osz1/DATA/DianaVideos/{videos_path}'
-    # output_folder = F'../Output/{videos_path}'
-    output_folder = F'/media/osz1/DATA/DianaVideos/Output/{videos_path}'
+    data_folder = F'/home/olmozavala/Dropbox/MyProjects/DianaProjects/ContractionsFromVideos/Data/{videos_path}'
+    output_folder = F'/data/DianaVideosOutput/{videos_path}'
     checkDirs(output_folder)
 
     videos=[]
