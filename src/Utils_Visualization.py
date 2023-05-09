@@ -101,4 +101,3 @@ def plotHeatmatPlotty(z,rows, cols, title, filename):
 
     fig = go.Figure(data=[data],layout=layout)
     plotly.offline.plot(fig, filename=filename, auto_open=False)
-

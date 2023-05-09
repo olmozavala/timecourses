@@ -156,8 +156,8 @@ if __name__ == '__main__':
                 c_sob = computeEdgesSobel(img, 5)
 
                 # Selects the top position when the 'cumulative' edges overpass a threshold
-                top_pos[cur_frame,:]= np.argmax(np.cumsum(c_sob, axis=0) > top_edge_th,axis=0)
-                bottom_pos[cur_frame,:]= rows - np.argmax(np.cumsum(np.flip(c_sob,axis=0), axis=0)<-bottom_edge_th, axis=0)
+                top_pos[cur_frame,:] = np.argmax(np.cumsum(c_sob, axis=0) > top_edge_th,axis=0)
+                bottom_pos[cur_frame,:] = rows - np.argmax(np.cumsum(np.flip(c_sob,axis=0), axis=0) < -bottom_edge_th, axis=0)
 
                 # For plotting BEFORE the median filter
                 # if (cur_frame % plot_every_n_frames) == 0:
@@ -204,7 +204,7 @@ if __name__ == '__main__':
                 for cur_col in range(cols):
                     mask[top_pos[cur_frame,cur_col]:bottom_pos[cur_frame,cur_col],cur_col] =  1
 
-                mean_intensities[cur_frame,:] = np.true_divide(all_video[cur_frame,:,:].sum(0), (mask!=False).sum(0))
+                mean_intensities[cur_frame,:] = np.true_divide(all_video[cur_frame,:,:].sum(0), (mask != False).sum(0))
                 # if (cur_frame % plot_every_n_frames) == 0: # Only plot once every x frames
                 #     plotImageAndMask(all_video[cur_frame,:,:],mean_intensities[cur_frame,:],savefig=True,
                 #                         output_folder=join(output_folder,'Mask_Area'),

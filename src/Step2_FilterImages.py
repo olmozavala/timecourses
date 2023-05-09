@@ -127,7 +127,7 @@ if __name__ == '__main__':
         output_folder = F'{input_folder}/{gd_video}/FilteredImages/{file_name}/'
         saveDir(output_folder)
 
-        for j,cur_f_type in enumerate(f_types):
+        for j, cur_f_type in enumerate(f_types):
             df = pd.read_csv(join(data_folder,file_name+'_'+cur_f_type+'.csv'), dtype=np.float32)
             rows,cols = df.shape
 
@@ -159,13 +159,12 @@ if __name__ == '__main__':
             k = 31
             title=F'{file_name} {cur_f_type} vertical edge original'
             new_file_name = join(output_folder,F'{file_name}_{cur_f_type}_Vertical_Edge')
-            edge = cv2.Sobel(original_values,cv2.CV_64F,1,0,ksize=k)
+            edge = cv2.Sobel(original_values,cv2.CV_64F, 1, 0,ksize=k)
             edge = (edge - np.amin(edge))/np.ptp(edge)
             # plotFinalFigures(edge, title, new_file_name+'.jpg',computeExtent(edge))
             plotFinalFigures(edge, title, new_file_name+'.jpg',[])
             plotHeatmatPlotty(edge, rows, cols, title, new_file_name+'.html')
             np.savetxt(F'{new_file_name}.csv', edge,fmt='%10.3f', delimiter=',')
-            continue
 
             print(F'Done!')
 
@@ -176,7 +175,7 @@ if __name__ == '__main__':
                 intensities = original_values[frame,:]
                 low_freq = smoothSingleCurve(intensities, 40) # Gets low frequencies
                 removed_low = intensities - low_freq
-                clean_intensities[frame,:]= smoothSingleCurve(removed_low, 3) # Removes high frequencies
+                clean_intensities[frame,:] = smoothSingleCurve(removed_low, 3) # Removes high frequencies
                 # clean_intensities[frame,:]= intensities
                 # clean_intensities[frame,:]= removed_low
                 # clean_intensities[frame,:] = smoothSingleCurve(intensities, 4) # Removes high frequencies
