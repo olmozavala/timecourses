@@ -15,18 +15,6 @@ def makeObj(name):
     }
     return vid
 
-def computeExtent(img):
-    fps = 2
-    pix_per_mil = 56
-
-    frames, pixels = img.shape
-    miny = 0
-    maxy = frames/fps
-
-    minx = 0
-    maxx = pixels/pix_per_mil
-
-    return [minx,maxx,maxy,miny]
 
 def bandPassFilter(df):
     f = 5 # 5 Frames por segundo
@@ -55,14 +43,16 @@ def bandPassFilter(df):
 if __name__ == '__main__':
     # This is the second file that needs to be executed. It subtracts the low frequencies and removes high frecuencies.
 
-    gd_video = 'GD4'
+
+    gd_video = 'GD3'
     input_folder = '/data/DianaVideosOutput'
     videos = []
     plot_every_n_frames = 10
+    disp_images = False  # Indicates if we want to see the images as they are processed
 
     if gd_video == 'GD3':
         # ================= GD3 ==================
-        # videos.append(makeObj('RGD3T4M01H01'))
+        videos.append(makeObj('RGD3T4M01H01'))
         # videos.append(makeObj('RDG3T4M01H01Sal1'))
         # videos.append(makeObj('RGD3T4M01H02'))
         # videos.append(makeObj('RDG3T4M01H02Sal1'))
@@ -74,14 +64,14 @@ if __name__ == '__main__':
         # videos.append(makeObj('RGD3T4M03H01Sal'))
         # videos.append(makeObj('RGD3T4M03H02'))
         # videos.append(makeObj('RGD3T4M03H02Sal'))
-        videos.append(makeObj('RGD3T4M06H01_2'))
-        videos.append(makeObj('RGD3T4M06H01Sal_2'))
-        videos.append(makeObj('RGD3T4M06H02_2'))
-        videos.append(makeObj('RGD3T4M06H02Sal_2'))
-        videos.append(makeObj('RGD3T4M07H01_2'))
-        videos.append(makeObj('RGD3T4M07H01Sal_2'))
-        videos.append(makeObj('RGD3T4M07H02_2'))
-        videos.append(makeObj('RGD3T4M07H02Sal_2'))
+        # videos.append(makeObj('RGD3T4M06H01_2'))
+        # videos.append(makeObj('RGD3T4M06H01Sal_2'))
+        # videos.append(makeObj('RGD3T4M06H02_2'))
+        # videos.append(makeObj('RGD3T4M06H02Sal_2'))
+        # videos.append(makeObj('RGD3T4M07H01_2'))
+        # videos.append(makeObj('RGD3T4M07H01Sal_2'))
+        # videos.append(makeObj('RGD3T4M07H02_2'))
+        # videos.append(makeObj('RGD3T4M07H02Sal_2'))
     else:
         # ================= GD4 ==================
         # Order: name, mean_uterus_size, th_bot, th_top, only_bot):
@@ -138,33 +128,37 @@ if __name__ == '__main__':
             # Save as JPG
             new_file_name = join(output_folder,F'{file_name}_{cur_f_type}_Original')
             title=F'{file_name}  {cur_f_type} Original'
-            original_norm = (original_values - np.amin(original_values))/np.ptp(original_values)
+            # original_norm = (original_values - np.amin(original_values))/np.ptp(original_values)
             # plotFinalFigures(original_values, title, new_file_name+'.jpg',computeExtent(original_values))
-            plotFinalFigures(original_values, title, new_file_name+'.jpg',[])
+            plotFinalFigures(original_values, title, new_file_name+'.jpg',[], view_results=disp_images)
 
             # Save original data as HTML
             # title=F'{file_name} {cur_f_type}'
             # html_file_name = F'{new_file_name}.html'
             # plotHeatmatPlotty(original_values, rows, cols, title, html_file_name)
 
-            k = 21
+            # k = 21
+            k = 5
             # Save as Edges
             title=F'{file_name} {cur_f_type} horizontal edge '
             new_file_name = join(output_folder,F'{file_name}_{cur_f_type}_Horizontal_Edge_Original')
-            edge = cv2.Sobel(original_values,cv2.CV_64F,0,1,ksize=k)
-            plotFinalFigures(edge, title, new_file_name+'.jpg',computeExtent(edge))
-            plotHeatmatPlotty(edge, rows, cols, title, new_file_name+'.html')
+            edge_h = cv2.Sobel(original_values,cv2.CV_64F,0,1,ksize=k)
+            edge_h = edge_h.clip(min=-50, max=50)
+            # plotFinalFigures(edge, title, new_file_name+'.jpg',computeExtent(edge), view_results=disp_images)
+            plotFinalFigures(edge_h, title, new_file_name+'.jpg',[], view_results=disp_images)
+            plotHeatmatPlotty(edge_h, rows, cols, title, new_file_name+'.html')
             # np.savetxt(F'{new_file_name}.csv', edge,fmt='%10.3f', delimiter=',')
 
-            k = 31
+            # k = 31
+            k = 5
             title=F'{file_name} {cur_f_type} vertical edge original'
             new_file_name = join(output_folder,F'{file_name}_{cur_f_type}_Vertical_Edge')
-            edge = cv2.Sobel(original_values,cv2.CV_64F, 1, 0,ksize=k)
-            edge = (edge - np.amin(edge))/np.ptp(edge)
+            edge_v = cv2.Sobel(original_values,cv2.CV_64F, 1, 0,ksize=k)
+            edge_v = (edge_v - np.amin(edge_v))/np.ptp(edge_v)
             # plotFinalFigures(edge, title, new_file_name+'.jpg',computeExtent(edge))
-            plotFinalFigures(edge, title, new_file_name+'.jpg',[])
-            plotHeatmatPlotty(edge, rows, cols, title, new_file_name+'.html')
-            np.savetxt(F'{new_file_name}.csv', edge,fmt='%10.3f', delimiter=',')
+            plotFinalFigures(edge_v, title, new_file_name+'.jpg',[], view_results=disp_images)
+            plotHeatmatPlotty(edge_v, rows, cols, title, new_file_name+'.html')
+            np.savetxt(F'{new_file_name}.csv', edge_v,fmt='%10.3f', delimiter=',')
 
             print(F'Done!')
 
@@ -184,9 +178,18 @@ if __name__ == '__main__':
             print(F'Saving filtered data...')
             # Save as JPG
             new_file_name = join(output_folder,F'{file_name}_{cur_f_type}_Filtered')
-            title=F'{file_name}   Filtered'
-            plotFinalFigures(clean_intensities, title, new_file_name+'.jpg',computeExtent(clean_intensities))
+            title=F'{file_name}  Filtered'
+            plotFinalFigures(clean_intensities, title, new_file_name+'.jpg',computeExtentSpaceTime(clean_intensities), view_results=disp_images)
 
+
+            # def plotMultipleImages(imgs, titles=[], output_folder='', file_name='', view_results=True):
+            # plotMultipleImages([original_values, edge_h, edge_v, clean_intensities], 
+            plotMultipleImages([original_values, edge_v, clean_intensities], 
+                               [F'{cur_f_type} Original', f'{cur_f_type} Vertical Edge', f'{cur_f_type} Filtered Vertical Edge'], 
+                               output_folder, F'{file_name}_{cur_f_type}_ALL', 
+                               extent=computeExtentSpaceTime(original_values),
+                               units=['Milimeters','Seconds'],
+                               view_results=disp_images, flip=True)
             # Save as CSV
             np.savetxt(F'{new_file_name}.csv', clean_intensities,fmt='%10.3f', delimiter=',')
 
@@ -199,13 +202,13 @@ if __name__ == '__main__':
             title=F'{file_name} {cur_f_type} horizontal edge filtered'
             new_file_name = join(output_folder,F'{file_name}_{cur_f_type}_Horizontal_Edge_Filtered')
             edge = cv2.Sobel(clean_intensities,cv2.CV_64F,0,1,ksize=k)
-            plotFinalFigures(edge, title, new_file_name+'.jpg',computeExtent(edge))
+            plotFinalFigures(edge, title, new_file_name+'.jpg',computeExtentSpaceTime(edge), view_results=disp_images)
             plotHeatmatPlotty(edge, rows, cols, title, new_file_name+'.html')
 
             title=F'{file_name} {cur_f_type} vertical edge filtered'
             new_file_name = join(output_folder,F'{file_name}_{cur_f_type}_Vertical_Edge_Filtered')
             edge = cv2.Sobel(clean_intensities,cv2.CV_64F,1,0,ksize=k)
-            plotFinalFigures(edge, title, new_file_name+'.jpg',computeExtent(edge))
+            plotFinalFigures(edge, title, new_file_name+'.jpg',computeExtentSpaceTime(edge), view_results=disp_images)
             plotHeatmatPlotty(edge, rows, cols, title, new_file_name+'.html')
 
             # Save as CSV

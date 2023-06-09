@@ -29,9 +29,8 @@ _______________
 * 56 pixels in each direction corresponds to 1 mm.
 
 
-Mask selection
-_______________
-
+# Mask selection
+## First step  (top, and bottom, mean intensities, area)
 The first step in the preprocessing of the videos pertains to the automatic
 selection of the upper and lower boundaries of the uterus at each frame.
 This is not an easy task for areas where the uterus horn is so thin

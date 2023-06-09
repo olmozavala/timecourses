@@ -29,25 +29,25 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
 
 def cubicSplines(data, final_pts):
     orig_pts = data.shape[0]
-    x = np.linspace(0,orig_pts,final_pts,dtype=np.int)
-    x_range = int(x[2] - x[1])
+    x = np.linspace(0,orig_pts-1,final_pts)
+    dx = x[1] - x[0]  # Real float dx
+    hdx = dx/2 # Half dx
     y = np.zeros(x.shape)
-    c_x = int(x_range/2)
-    y[0] = np.mean(data[0:c_x]) # Just for the first and last case we obtain half the average
-    # print(F'0-{c_x}')
+    y[0] = np.mean(data[0:int(hdx)]) # Just for the first and last points we obtain the average for half the range.
+    # print(F'0-{int(dx)} --> {y[0]}')
+    c_x = hdx  # Current x position
     for x_idx in range(1,final_pts-1):
-        x_range = int(x[x_idx] - x[x_idx-1])
-        # print(F'{c_x}-{c_x+x_range}')
-        y[x_idx] = np.mean(data[c_x:c_x+x_range])
-        c_x+=x_range
+        y[x_idx] = np.mean(data[max(int(c_x-hdx),0):int(c_x+dx)])
+        # print(F'{max(int(c_x-hdx),0)}-{int(c_x+hdx)} --> {y[x_idx]}')
+        c_x += dx
 
-    # print(F'{c_x}-end')
-    y[-1] = np.mean(data[c_x:-1])
+    y[-1] = np.mean(data[int(c_x):-1])
+    # print(F'{int(c_x)}-end --> {y[-1]}')
 
     f2 = interp1d(x, y, kind='cubic')
-    xnew = np.linspace(0, orig_pts, orig_pts, dtype=np.int)
+    xnew = np.arange(orig_pts)
 
-    # plt.plot(xnew,data,'g')
+    # plt.scatter(xnew, data,c='g')
     # plt.plot(x,y,'b')
     # plt.plot(xnew,f2(xnew),'r--')
     # plt.show()
@@ -92,6 +92,7 @@ def getDims(cap):
 
 def gaussianBlurXandZ(all_video, k_size_time, k_size_hor):
     '''Performs gaussian blur two times, one by each Frame and one by each column '''
+    print(f"Smoothing video with a kernel size of time:{k_size_time} and horizontal:{k_size_hor}")
     frames,rows,cols = all_video.shape
     smooth = np.zeros(all_video.shape)
     for cur_col in range(cols):
@@ -187,3 +188,36 @@ def getROI(img, mean_uterus_size, th_bot_all, th_top_all, only_bottom=True):
     mask_int[mask] = img[mask]
     mean_values = np.true_divide(mask_int.sum(0), (mask!=False).sum(0))
     return mask, mean_values, bot_pos, top_pos
+
+def computeExtentSpaceTime(img):
+    """
+    Computes the extent of the image in milimeters
+    """
+    fps = 5
+    pix_per_mil = 56
+
+    frames, pixels = img.shape
+    miny = 0
+    maxy = frames/fps
+
+    minx = 0
+    maxx = pixels/pix_per_mil
+
+    return [minx,maxx,maxy,miny]
+
+
+def computeExtentSpace(img):
+    """
+    Computes the extent of the image in milimeters
+    """
+    pix_per_mil_x = 56
+    pix_per_mil_y = 56
+
+    pixels_x, pixels_y = img.shape
+
+    minx = 0
+    maxx = pixels_y/pix_per_mil_y
+    miny = 0
+    maxy = pixels_x/pix_per_mil_x
+
+    return [minx,maxx,maxy,miny]
