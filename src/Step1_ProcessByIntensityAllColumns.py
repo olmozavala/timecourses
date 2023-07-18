@@ -54,34 +54,36 @@ if __name__ == '__main__':
     # def_bot_th = 1900
     def_top_th = 1.8 
     def_bot_th = 1.8 
-    plot_every_n_frames = 10
+    plot_every_n_frames = 40
     k_size_time = 3# Used to smooth the vidoes (kernel size of a gaussian filter in time)
     k_size_space = 5# Used to smooth the vidoes (kernel size of a gaussian filter in time)
 
     if videos_path == 'GD3':
         # ================= GD3 ==================
-        videos.append(makeObj('RGD3T4M01H01', def_top_th, def_bot_th))
-        videos.append(makeObj('RDG3T4M01H01Sal1',def_top_th,def_bot_th))
-        videos.append(makeObj('RGD3T4M01H02',def_top_th*1.1,def_bot_th*.8))
-        videos.append(makeObj('RDG3T4M01H02Sal1',def_top_th*1.5,def_bot_th*.8))
-        videos.append(makeObj('RGD3T4M02H01',def_top_th,def_bot_th))
-        videos.append(makeObj('RGD3T4M02H01Sal',def_top_th*.9,def_bot_th))
-        videos.append(makeObj('RGD3T4M02H02',def_top_th,def_bot_th*1.5))
-        videos.append(makeObj('RGD3T4M02H02Sal',def_top_th,def_bot_th))
-        videos.append(makeObj('RGD3T4M03H01',def_top_th*.7,def_bot_th))
-        videos.append(makeObj('RGD3T4M03H01Sal',def_top_th*.7,def_bot_th*.8))
-        videos.append(makeObj('RGD3T4M03H02',def_top_th,def_bot_th))
-        videos.append(makeObj('RGD3T4M03H02Sal',def_top_th*.9,def_bot_th*.8))
-        videos.append(makeObj('RGD4T4M01H01',def_top_th*.6,def_bot_th*.7))
-        videos.append(makeObj('RGD4T4M01H01Sal2',def_top_th*.55,def_bot_th*.45))
-        videos.append(makeObj('RGD3T4M06H01_2',def_top_th*1.5,def_bot_th*.45))
-        videos.append(makeObj('RGD3T4M06H01Sal_2',def_top_th,def_bot_th))
-        videos.append(makeObj('RGD3T4M06H02_2',def_top_th*.5,def_bot_th))
-        videos.append(makeObj('RGD3T4M06H02Sal_2',def_top_th*1.5,def_bot_th*1.2))
-        videos.append(makeObj('RGD3T4M07H01_2',def_top_th,def_bot_th))
-        videos.append(makeObj('RGD3T4M07H01Sal_2',def_top_th,def_bot_th))
-        videos.append(makeObj('RGD3T4M07H02_2',def_top_th,def_bot_th))
-        videos.append(makeObj('RGD3T4M07H02Sal_2',def_top_th,def_bot_th))
+        videos.append(makeObj('v1-control-brightnessup-UH', def_top_th, def_bot_th))
+        # videos.append(makeObj('v1-control-UH', def_top_th, def_bot_th))
+        # videos.append(makeObj('RGD3T4M01H01', def_top_th, def_bot_th))
+        # videos.append(makeObj('RDG3T4M01H01Sal1',def_top_th,def_bot_th))
+        # videos.append(makeObj('RGD3T4M01H02',def_top_th*1.1,def_bot_th*.8))
+        # videos.append(makeObj('RDG3T4M01H02Sal1',def_top_th*1.5,def_bot_th*.8))
+        # videos.append(makeObj('RGD3T4M02H01',def_top_th,def_bot_th))
+        # videos.append(makeObj('RGD3T4M02H01Sal',def_top_th*.9,def_bot_th))
+        # videos.append(makeObj('RGD3T4M02H02',def_top_th,def_bot_th*1.5))
+        # videos.append(makeObj('RGD3T4M02H02Sal',def_top_th,def_bot_th))
+        # videos.append(makeObj('RGD3T4M03H01',def_top_th*.7,def_bot_th))
+        # videos.append(makeObj('RGD3T4M03H01Sal',def_top_th*.7,def_bot_th*.8))
+        # videos.append(makeObj('RGD3T4M03H02',def_top_th,def_bot_th))
+        # videos.append(makeObj('RGD3T4M03H02Sal',def_top_th*.9,def_bot_th*.8))
+        # videos.append(makeObj('RGD4T4M01H01',def_top_th*.6,def_bot_th*.7))
+        # videos.append(makeObj('RGD4T4M01H01Sal2',def_top_th*.55,def_bot_th*.45))
+        # videos.append(makeObj('RGD3T4M06H01_2',def_top_th*1.5,def_bot_th*.45))
+        # videos.append(makeObj('RGD3T4M06H01Sal_2',def_top_th,def_bot_th))
+        # videos.append(makeObj('RGD3T4M06H02_2',def_top_th*.5,def_bot_th))
+        # videos.append(makeObj('RGD3T4M06H02Sal_2',def_top_th*1.5,def_bot_th*1.2))
+        # videos.append(makeObj('RGD3T4M07H01_2',def_top_th,def_bot_th))
+        # videos.append(makeObj('RGD3T4M07H01Sal_2',def_top_th,def_bot_th))
+        # videos.append(makeObj('RGD3T4M07H02_2',def_top_th,def_bot_th))
+        # videos.append(makeObj('RGD3T4M07H02Sal_2',def_top_th,def_bot_th))
     else:
         # ================= GD4 ==================
         # Order: name, mean_uterus_size, th_bot, th_top, only_bot):

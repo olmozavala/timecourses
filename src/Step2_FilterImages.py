@@ -52,26 +52,28 @@ if __name__ == '__main__':
 
     if gd_video == 'GD3':
         # ================= GD3 ==================
-        videos.append(makeObj('RGD3T4M01H01'))
-        videos.append(makeObj('RDG3T4M01H01Sal1'))
-        videos.append(makeObj('RGD3T4M01H02'))
-        videos.append(makeObj('RDG3T4M01H02Sal1'))
-        videos.append(makeObj('RGD3T4M02H01'))
-        videos.append(makeObj('RGD3T4M02H01Sal'))
-        videos.append(makeObj('RGD3T4M02H02'))
-        videos.append(makeObj('RGD3T4M02H02Sal'))
-        videos.append(makeObj('RGD3T4M03H01'))
-        videos.append(makeObj('RGD3T4M03H01Sal'))
-        videos.append(makeObj('RGD3T4M03H02'))
-        videos.append(makeObj('RGD3T4M03H02Sal'))
-        videos.append(makeObj('RGD3T4M06H01_2'))
-        videos.append(makeObj('RGD3T4M06H01Sal_2'))
-        videos.append(makeObj('RGD3T4M06H02_2'))
-        videos.append(makeObj('RGD3T4M06H02Sal_2'))
-        videos.append(makeObj('RGD3T4M07H01_2'))
-        videos.append(makeObj('RGD3T4M07H01Sal_2'))
-        videos.append(makeObj('RGD3T4M07H02_2'))
-        videos.append(makeObj('RGD3T4M07H02Sal_2'))
+        videos.append(makeObj('v1-control-brightnessup-UH'))
+        # videos.append(makeObj('v1-control-UH'))
+        # videos.append(makeObj('RGD3T4M01H01'))
+        # videos.append(makeObj('RDG3T4M01H01Sal1'))
+        # videos.append(makeObj('RGD3T4M01H02'))
+        # videos.append(makeObj('RDG3T4M01H02Sal1'))
+        # videos.append(makeObj('RGD3T4M02H01'))
+        # videos.append(makeObj('RGD3T4M02H01Sal'))
+        # videos.append(makeObj('RGD3T4M02H02'))
+        # videos.append(makeObj('RGD3T4M02H02Sal'))
+        # videos.append(makeObj('RGD3T4M03H01'))
+        # videos.append(makeObj('RGD3T4M03H01Sal'))
+        # videos.append(makeObj('RGD3T4M03H02'))
+        # videos.append(makeObj('RGD3T4M03H02Sal'))
+        # videos.append(makeObj('RGD3T4M06H01_2'))
+        # videos.append(makeObj('RGD3T4M06H01Sal_2'))
+        # videos.append(makeObj('RGD3T4M06H02_2'))
+        # videos.append(makeObj('RGD3T4M06H02Sal_2'))
+        # videos.append(makeObj('RGD3T4M07H01_2'))
+        # videos.append(makeObj('RGD3T4M07H01Sal_2'))
+        # videos.append(makeObj('RGD3T4M07H02_2'))
+        # videos.append(makeObj('RGD3T4M07H02Sal_2'))
     else:
         # ================= GD4 ==================
         # Order: name, mean_uterus_size, th_bot, th_top, only_bot):
@@ -109,7 +111,8 @@ if __name__ == '__main__':
         videos.append(makeObj('RGD4T4M09SalH02_3'))
 
     #f_types = ['Area', 'Bottom_positions', 'Mean_intensities', 'Top_positions']
-    f_types = ['Area', 'Bottom_positions', 'Mean_intensities']
+    # f_types = ['Area', 'Bottom_positions', 'Mean_intensities']
+    f_types = ['Mean_intensities', 'Area']
 
     for i, cur_vid in enumerate(videos):
         file_name = cur_vid['file_name']
@@ -117,6 +120,7 @@ if __name__ == '__main__':
         output_folder = F'{input_folder}/{gd_video}/FilteredImages/{file_name}/'
         saveDir(output_folder)
 
+        # Iterates over all the types of data we want to work with 
         for j, cur_f_type in enumerate(f_types):
             df = pd.read_csv(join(data_folder,file_name+'_'+cur_f_type+'.csv'), dtype=np.float32)
             rows,cols = df.shape
@@ -188,30 +192,29 @@ if __name__ == '__main__':
             plotMultipleImages([original_values, edge_v, clean_intensities], 
                                [F'{cur_f_type} Original', f'{cur_f_type} Vertical Edge', f'{cur_f_type} Filtered Vertical Edge'], 
                                output_folder, F'{file_name}_{cur_f_type}_ALL', 
+                               cbar_label=['Original', 'Vertical Edge', 'Filtered Vertical Edge'],
                                extent=computeExtentSpaceTime(original_values),
                                units=['Milimeters','Seconds'],
                                view_results=disp_images, flip=True)
             # Save as CSV
             np.savetxt(F'{new_file_name}.csv', clean_intensities,fmt='%10.3f', delimiter=',')
 
-            # Save as HTML
+            # ------------------- Save as HTML
             title=F'{file_name} {cur_f_type}'
             html_file_name = F'{new_file_name}.html'
             plotHeatmatPlotty(clean_intensities, rows, cols, title, html_file_name)
 
-            # Save as Edges
             title=F'{file_name} {cur_f_type} horizontal edge filtered'
             new_file_name = join(output_folder,F'{file_name}_{cur_f_type}_Horizontal_Edge_Filtered')
-            edge = cv2.Sobel(clean_intensities,cv2.CV_64F,0,1,ksize=k)
-            plotFinalFigures(edge, title, new_file_name+'.jpg',computeExtentSpaceTime(edge), view_results=disp_images)
-            plotHeatmatPlotty(edge, rows, cols, title, new_file_name+'.html')
+            plotFinalFigures(edge_h, title, new_file_name+'.jpg',computeExtentSpaceTime(edge_h), view_results=disp_images)
+            plotHeatmatPlotty(edge_h, rows, cols, title, new_file_name+'.html')
 
             title=F'{file_name} {cur_f_type} vertical edge filtered'
             new_file_name = join(output_folder,F'{file_name}_{cur_f_type}_Vertical_Edge_Filtered')
-            edge = cv2.Sobel(clean_intensities,cv2.CV_64F,1,0,ksize=k)
-            plotFinalFigures(edge, title, new_file_name+'.jpg',computeExtentSpaceTime(edge), view_results=disp_images)
-            plotHeatmatPlotty(edge, rows, cols, title, new_file_name+'.html')
+            plotFinalFigures(edge_v, title, new_file_name+'.jpg',computeExtentSpaceTime(edge_v), view_results=disp_images)
+            plotHeatmatPlotty(edge_v, rows, cols, title, new_file_name+'.html', zmin=0.2, zmax=0.7)
+            plotHeatmatPlotty(edge_v, rows, cols, title, new_file_name+'_3D.html', surface=True)
 
             # Save as CSV
-            np.savetxt(F'{new_file_name}.csv', edge,fmt='%10.3f', delimiter=',')
+            np.savetxt(F'{new_file_name}.csv', edge_v,fmt='%10.3f', delimiter=',')
     print("Done!!!")

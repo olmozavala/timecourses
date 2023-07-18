@@ -49,7 +49,7 @@ def plotMultipleImages(imgs, titles=[], output_folder='', file_name='',
 
         shrink = 0.9
         if len(cbar_label)>0:
-            fig.colorbar(im, ax=c_ax, shrink=shrink, label=cbar_label[img_idx], font_size=font_size)
+            fig.colorbar(im, ax=c_ax, shrink=shrink, label=cbar_label[img_idx])
 
         # Draw a vertical line at the middle column of the image
         # c_ax.plot([6.4, 6.4], [3, 0], 'r')
@@ -117,18 +117,27 @@ def plotFinalFigures(data, title, out_file_name, extent=[], view_results=True):
     plt.savefig(out_file_name, bbox_inches='tight')
     dispImages(view_results)
 
-def plotHeatmatPlotty(z,rows, cols, title, filename, zmin=None, zmax=None):
+def plotHeatmatPlotty(z,rows, cols, title, filename, surface=False, zmin=None, zmax=None):
     print(f"File {filename} min value {np.min(z)} max value {np.max(z)}")
-    if zmin is None:
-        data= go.Heatmap(z=z,
+    if surface:
+        data= go.Surface(z=z,
                         x=np.arange(cols),
                         y=np.arange(rows))
+
+        # X, Y = np.meshgrid(np.arange(cols), np.arange(rows))
+        # data = go.Scatter3d( z=z.ravel(),
+        #                 x=X.ravel(),
+        #                 y=Y.ravel(),
+        #                 mode='markers')
     else:
         data= go.Heatmap(z=z,
                         x=np.arange(cols),
-                        y=np.arange(rows), 
-                        zmin=zmin,
-                        zmax=zmax)
+                        y=np.arange(rows))
+
+        if zmin is not None and zmax is not None:
+            data.update(zmin=zmin, zmax=zmax)
+
+    # Modify the min max range of the heatmap in order to see the data better
 
     numticks = 10
     fps = 2
