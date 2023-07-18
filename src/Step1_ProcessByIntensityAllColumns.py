@@ -61,27 +61,27 @@ if __name__ == '__main__':
     if videos_path == 'GD3':
         # ================= GD3 ==================
         videos.append(makeObj('RGD3T4M01H01', def_top_th, def_bot_th))
-        # videos.append(makeObj('RDG3T4M01H01Sal1',def_top_th,def_bot_th))
-        # videos.append(makeObj('RGD3T4M01H02',def_top_th*1.1,def_bot_th*.8))
-        # videos.append(makeObj('RDG3T4M01H02Sal1',def_top_th*1.5,def_bot_th*.8))
-        # videos.append(makeObj('RGD3T4M02H01',def_top_th,def_bot_th))
-        # videos.append(makeObj('RGD3T4M02H01Sal',def_top_th*.9,def_bot_th))
-        # videos.append(makeObj('RGD3T4M02H02',def_top_th,def_bot_th*1.5))
-        # videos.append(makeObj('RGD3T4M02H02Sal',def_top_th,def_bot_th))
-        # videos.append(makeObj('RGD3T4M03H01',def_top_th*.7,def_bot_th))
-        # videos.append(makeObj('RGD3T4M03H01Sal',def_top_th*.7,def_bot_th*.8))
-        # videos.append(makeObj('RGD3T4M03H02',def_top_th,def_bot_th))
-        # videos.append(makeObj('RGD3T4M03H02Sal',def_top_th*.9,def_bot_th*.8))
-        # videos.append(makeObj('RGD4T4M01H01',def_top_th*.6,def_bot_th*.7))
-        # videos.append(makeObj('RGD4T4M01H01Sal2',def_top_th*.55,def_bot_th*.45))
-        # videos.append(makeObj('RGD3T4M06H01_2',def_top_th*1.5,def_bot_th*.45))
-        # videos.append(makeObj('RGD3T4M06H01Sal_2',def_top_th,def_bot_th))
-        # videos.append(makeObj('RGD3T4M06H02_2',def_top_th*.5,def_bot_th))
-        # videos.append(makeObj('RGD3T4M06H02Sal_2',def_top_th*1.5,def_bot_th*1.2))
-        # videos.append(makeObj('RGD3T4M07H01_2',def_top_th,def_bot_th))
-        # videos.append(makeObj('RGD3T4M07H01Sal_2',def_top_th,def_bot_th))
-        # videos.append(makeObj('RGD3T4M07H02_2',def_top_th,def_bot_th))
-        # videos.append(makeObj('RGD3T4M07H02Sal_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RDG3T4M01H01Sal1',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD3T4M01H02',def_top_th*1.1,def_bot_th*.8))
+        videos.append(makeObj('RDG3T4M01H02Sal1',def_top_th*1.5,def_bot_th*.8))
+        videos.append(makeObj('RGD3T4M02H01',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD3T4M02H01Sal',def_top_th*.9,def_bot_th))
+        videos.append(makeObj('RGD3T4M02H02',def_top_th,def_bot_th*1.5))
+        videos.append(makeObj('RGD3T4M02H02Sal',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD3T4M03H01',def_top_th*.7,def_bot_th))
+        videos.append(makeObj('RGD3T4M03H01Sal',def_top_th*.7,def_bot_th*.8))
+        videos.append(makeObj('RGD3T4M03H02',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD3T4M03H02Sal',def_top_th*.9,def_bot_th*.8))
+        videos.append(makeObj('RGD4T4M01H01',def_top_th*.6,def_bot_th*.7))
+        videos.append(makeObj('RGD4T4M01H01Sal2',def_top_th*.55,def_bot_th*.45))
+        videos.append(makeObj('RGD3T4M06H01_2',def_top_th*1.5,def_bot_th*.45))
+        videos.append(makeObj('RGD3T4M06H01Sal_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD3T4M06H02_2',def_top_th*.5,def_bot_th))
+        videos.append(makeObj('RGD3T4M06H02Sal_2',def_top_th*1.5,def_bot_th*1.2))
+        videos.append(makeObj('RGD3T4M07H01_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD3T4M07H01Sal_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD3T4M07H02_2',def_top_th,def_bot_th))
+        videos.append(makeObj('RGD3T4M07H02Sal_2',def_top_th,def_bot_th))
     else:
         # ================= GD4 ==================
         # Order: name, mean_uterus_size, th_bot, th_top, only_bot):
@@ -263,11 +263,11 @@ if __name__ == '__main__':
                 bottom_pos[cur_frame,:] = medfilt(bottom_pos[cur_frame], median_filt_size_bottom)
 
                 # For plotting BEFORE the smoothing
-                if (cur_frame % plot_every_n_frames) == 0:
-                    plotImageAndScatter(all_video[cur_frame, :, :], [top_pos[cur_frame, :], bottom_pos[cur_frame, :]], 
-                                        title=F'Median filtered detected uterine horn',
-                                        savefig=True, output_folder=join(output_folder,'MaskArea',file_name),
-                                        file_name = F'{file_name}_frame_{cur_frame:04d}_BeforeSCubic.jpg', view_results=disp_images)
+                # if (cur_frame % plot_every_n_frames) == 0:
+                #     plotImageAndScatter(all_video[cur_frame, :, :], [top_pos[cur_frame, :], bottom_pos[cur_frame, :]], 
+                #                         title=F'Median filtered detected uterine horn',
+                #                         savefig=True, output_folder=join(output_folder,'MaskArea',file_name),
+                #                         file_name = F'{file_name}_frame_{cur_frame:04d}_BeforeSCubic.jpg', view_results=disp_images)
 
                 # ------------ Smoothing curve of top positions -------------
                 top_pos[cur_frame,:] = cubicSplines(top_pos[cur_frame,:], cubi_spline_pts_top)
@@ -283,9 +283,9 @@ if __name__ == '__main__':
                                         units=['Size in mm', 'Size in mm'],
                               savefig=True, output_folder=join(output_folder,'MaskArea',file_name),
                               file_name = F'{file_name}_frame_{cur_frame:04d}.jpg', view_results=disp_images)
-                    if cur_frame == 0:
-                        plotMultipleImages([c_sob], output_folder=join(output_folder, 'MaskArea', file_name),
-                                           file_name='EdgesExample.jpg', view_results=disp_images)
+                    # if cur_frame == 0:
+                        # plotMultipleImages([c_sob], output_folder=join(output_folder, 'MaskArea', file_name),
+                                        #    file_name='EdgesExample.jpg', view_results=disp_images)
 
 
             print('Done!')

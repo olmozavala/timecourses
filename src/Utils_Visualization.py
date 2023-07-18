@@ -117,10 +117,18 @@ def plotFinalFigures(data, title, out_file_name, extent=[], view_results=True):
     plt.savefig(out_file_name, bbox_inches='tight')
     dispImages(view_results)
 
-def plotHeatmatPlotty(z,rows, cols, title, filename):
-    data= go.Heatmap(z=z,
-                     x=np.arange(cols),
-                     y=np.arange(rows))
+def plotHeatmatPlotty(z,rows, cols, title, filename, zmin=None, zmax=None):
+    print(f"File {filename} min value {np.min(z)} max value {np.max(z)}")
+    if zmin is None:
+        data= go.Heatmap(z=z,
+                        x=np.arange(cols),
+                        y=np.arange(rows))
+    else:
+        data= go.Heatmap(z=z,
+                        x=np.arange(cols),
+                        y=np.arange(rows), 
+                        zmin=zmin,
+                        zmax=zmax)
 
     numticks = 10
     fps = 2

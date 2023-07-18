@@ -1,3 +1,4 @@
+# %%
 from os.path import join
 
 import matplotlib.pyplot as plt
@@ -40,10 +41,9 @@ def bandPassFilter(df):
     plt.ylim(-2,2)
     plt.show()
 
+# %% Main
 if __name__ == '__main__':
     # This is the second file that needs to be executed. It subtracts the low frequencies and removes high frecuencies.
-
-
     gd_video = 'GD3'
     input_folder = '/data/DianaVideosOutput'
     videos = []
@@ -53,25 +53,25 @@ if __name__ == '__main__':
     if gd_video == 'GD3':
         # ================= GD3 ==================
         videos.append(makeObj('RGD3T4M01H01'))
-        # videos.append(makeObj('RDG3T4M01H01Sal1'))
-        # videos.append(makeObj('RGD3T4M01H02'))
-        # videos.append(makeObj('RDG3T4M01H02Sal1'))
-        # videos.append(makeObj('RGD3T4M02H01'))
-        # videos.append(makeObj('RGD3T4M02H01Sal'))
-        # videos.append(makeObj('RGD3T4M02H02'))
-        # videos.append(makeObj('RGD3T4M02H02Sal'))
-        # videos.append(makeObj('RGD3T4M03H01'))
-        # videos.append(makeObj('RGD3T4M03H01Sal'))
-        # videos.append(makeObj('RGD3T4M03H02'))
-        # videos.append(makeObj('RGD3T4M03H02Sal'))
-        # videos.append(makeObj('RGD3T4M06H01_2'))
-        # videos.append(makeObj('RGD3T4M06H01Sal_2'))
-        # videos.append(makeObj('RGD3T4M06H02_2'))
-        # videos.append(makeObj('RGD3T4M06H02Sal_2'))
-        # videos.append(makeObj('RGD3T4M07H01_2'))
-        # videos.append(makeObj('RGD3T4M07H01Sal_2'))
-        # videos.append(makeObj('RGD3T4M07H02_2'))
-        # videos.append(makeObj('RGD3T4M07H02Sal_2'))
+        videos.append(makeObj('RDG3T4M01H01Sal1'))
+        videos.append(makeObj('RGD3T4M01H02'))
+        videos.append(makeObj('RDG3T4M01H02Sal1'))
+        videos.append(makeObj('RGD3T4M02H01'))
+        videos.append(makeObj('RGD3T4M02H01Sal'))
+        videos.append(makeObj('RGD3T4M02H02'))
+        videos.append(makeObj('RGD3T4M02H02Sal'))
+        videos.append(makeObj('RGD3T4M03H01'))
+        videos.append(makeObj('RGD3T4M03H01Sal'))
+        videos.append(makeObj('RGD3T4M03H02'))
+        videos.append(makeObj('RGD3T4M03H02Sal'))
+        videos.append(makeObj('RGD3T4M06H01_2'))
+        videos.append(makeObj('RGD3T4M06H01Sal_2'))
+        videos.append(makeObj('RGD3T4M06H02_2'))
+        videos.append(makeObj('RGD3T4M06H02Sal_2'))
+        videos.append(makeObj('RGD3T4M07H01_2'))
+        videos.append(makeObj('RGD3T4M07H01Sal_2'))
+        videos.append(makeObj('RGD3T4M07H02_2'))
+        videos.append(makeObj('RGD3T4M07H02Sal_2'))
     else:
         # ================= GD4 ==================
         # Order: name, mean_uterus_size, th_bot, th_top, only_bot):
@@ -146,7 +146,8 @@ if __name__ == '__main__':
             edge_h = edge_h.clip(min=-50, max=50)
             # plotFinalFigures(edge, title, new_file_name+'.jpg',computeExtent(edge), view_results=disp_images)
             plotFinalFigures(edge_h, title, new_file_name+'.jpg',[], view_results=disp_images)
-            plotHeatmatPlotty(edge_h, rows, cols, title, new_file_name+'.html')
+            # This is an example on how to run it specifyin gthe zmin and zmax
+            plotHeatmatPlotty(edge_h, rows, cols, title, new_file_name+'.html', zmin=-50, zmax=50)
             # np.savetxt(F'{new_file_name}.csv', edge,fmt='%10.3f', delimiter=',')
 
             # k = 31
