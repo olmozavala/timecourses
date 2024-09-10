@@ -123,6 +123,20 @@ def readFramesFromVideoFile(file_name, ):
         cap = cv2.VideoCapture(file_name)
         all_video = np.zeros((frames, rows, cols))
 
+        # Printing info 
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        frame_rate = cap.get(cv2.CAP_PROP_FPS)
+        duration = frame_count / frame_rate
+
+        print("Frame Count:", frame_count)
+        print("Frame Width:", frame_width)
+        print("Frame Height:", frame_height)
+        print("Frame Rate:", frame_rate)
+        print("Duration (seconds):", duration)
+
+
         frame_idx = 0 # Index for each frame
 
         print('Reading data...')
@@ -210,8 +224,8 @@ def computeExtentSpace(img):
     """
     Computes the extent of the image in milimeters
     """
-    pix_per_mil_x = 56
-    pix_per_mil_y = 56
+    pix_per_mil_x = 110.85
+    pix_per_mil_y = 110.85
 
     pixels_x, pixels_y = img.shape
 

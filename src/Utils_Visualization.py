@@ -4,6 +4,7 @@ import plotly.graph_objs as go
 from Utils_io import *
 from os.path import join
 import numpy as np
+import cmocean as cmo
 
 colors = ['y', 'r', 'c', 'b', 'g', 'w', 'k', 'y', 'r', 'c', 'b', 'g', 'w', 'k']
 
@@ -14,14 +15,18 @@ def dispImages(view_results):
         plt.close()
 
 def plotMultipleImages(imgs, titles=[], output_folder='', file_name='', 
-                       view_results=True, extent=[],
-                       units=[], cbar_label = [], horizontal=True, flip=False):
+                       view_results=False, extent=[],
+                       units=[], cbar_label = [], 
+                       cmap=cmo.cm.thermal,
+                       figsize=10,
+                       horizontal=True, flip=False, auto=True, draw_vline=0):
 
-    font_size = 20
+    font_size = 15
+
     if horizontal:
-        fig, axs = plt.subplots(1, len(imgs), figsize=(8*len(imgs), 8))
+        fig, axs = plt.subplots(1, len(imgs), figsize=(figsize*len(imgs), figsize))
     else:
-        fig, axs = plt.subplots(len(imgs), 1, figsize=(8, 8*len(imgs)))
+        fig, axs = plt.subplots(len(imgs), 1, figsize=(figsize, figsize*len(imgs)))
 
     for img_idx, c_img in enumerate(imgs):
         if len(imgs) == 1:
@@ -30,11 +35,17 @@ def plotMultipleImages(imgs, titles=[], output_folder='', file_name='',
             c_ax = axs[img_idx]
 
         if len(extent)>0:
-            im = c_ax.imshow(c_img, extent=extent)
+            im = c_ax.imshow(c_img, extent=extent, cmap=cmap)
         else:
-            im = c_ax.imshow(c_img)
+            im = c_ax.imshow(c_img, cmap=cmap)
+
+        if cmap == cmo.cm.delta:
+            # Then we need to set the min and max values of the colorbar
+            # the the max absolute value of the image
+            im.set_clim(vmin=-np.max(np.abs(c_img)), vmax=np.max(np.abs(c_img)))
         
-        c_ax.set_aspect('auto')
+        if auto:
+            c_ax.set_aspect('auto')
 
         if flip:
             c_ax.invert_yaxis()  # This line inverts the y-axis
@@ -45,17 +56,21 @@ def plotMultipleImages(imgs, titles=[], output_folder='', file_name='',
             c_ax.tick_params(axis='both', which='major', labelsize=font_size*.8)
 
         if len(titles) > img_idx:
-            c_ax.set_title(F'{titles[img_idx]}', fontsize=font_size*1.2)
+            c_ax.set_title(F'{titles[img_idx].replace("_"," ")}', fontsize=font_size*1.2)
 
-        shrink = 0.9
+        shrink = 0.20
         if len(cbar_label)>0:
             fig.colorbar(im, ax=c_ax, shrink=shrink, label=cbar_label[img_idx])
 
-        # Draw a vertical line at the middle column of the image
-        # c_ax.plot([6.4, 6.4], [3, 0], 'r')
 
+        # Draw a vertical line at the middle column of the image
+        if draw_vline > 0:
+            pos = extent[1]*draw_vline/c_img.shape[1]
+            c_ax.axvline(pos, color='r', linestyle='dashed')
 
     if output_folder!='':
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
         plt.savefig(join(output_folder,file_name), bbox_inches='tight')
 
     dispImages(view_results)

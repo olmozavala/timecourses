@@ -1,0 +1,5 @@
+# Add vscode, node_modules, and dist to .gitignore
+.vscode
+node_modules
+dist
+.idea
