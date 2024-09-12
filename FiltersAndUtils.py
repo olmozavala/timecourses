@@ -136,10 +136,8 @@ def readFramesFromVideoFile(file_name, ):
         print("Frame Rate:", frame_rate)
         print("Duration (seconds):", duration)
 
-
         frame_idx = 0 # Index for each frame
 
-        print('Reading data...')
         while(frame_idx < frames):
             # Obtains a frame for each vide (specific CV structure)
             ret, frame = cap.read()
@@ -149,14 +147,14 @@ def readFramesFromVideoFile(file_name, ):
                 frame_idx+=1
 
             except Exception as e:
-                print(F'---Frame {frame_idx} failed: {e} ----')
+                print(F'Warning: Frame {frame_idx} failed: {e} ----')
                 frame_idx+=1
                 continue
 
         cap.release()
 
     except Exception as e:
-        print(F'---Failed for video {file_name} failed: {e} ----')
+        print(F'Warning: Failed for video {file_name} failed: {e} ----')
 
     return all_video, rows, cols, frames
 

@@ -20,8 +20,7 @@ def makeObj(name, top_edge_th, bottom_edge_th,
             cubic_splines_pts_top=100,
             cubic_splines_pts_bottom=100):
 
-    vid = {
-        'file_name': name, # Name of the file
+    vid = { 'file_name': name, # Name of the file
         'top_edge_th': top_edge_th,
         'bottom_edge_th': bottom_edge_th,
         'medial_filter_size_top': median_filter_size_top,
@@ -66,30 +65,30 @@ k_size_space = 5# Used to smooth the vidoes (kernel size of a gaussian filter in
 
 videos = []
 videos.append(makeObj("BPM1-H1-PGE2D1-2.avi", def_top_th, def_bot_th))
-videos.append(makeObj("BPM2-H2-PGE2D1-2.avi", def_top_th, def_bot_th))
-videos.append(makeObj("BPM3-H1-CONTROL-1.avi", def_top_th, def_bot_th))
-videos.append(makeObj("CM3-BL6-GD3.25-1-UH.avi", def_top_th, def_bot_th))
-videos.append(makeObj("CM6-BL6-GD3.5-1-BH.avi", def_top_th, def_bot_th))
-videos.append(makeObj("DM12-CD1-DIES-V-NPBS-CON-1-BHP-b.avi", def_top_th, def_bot_th))
-videos.append(makeObj("DM1-H2-PGE2-D1-2-a.avi", def_top_th, def_bot_th))
-videos.append(makeObj("DM1-H2-SALBUTAMOL-4-b.avi", def_top_th, def_bot_th))
-videos.append(makeObj("DM3-H2-OXY-D1.avi", def_top_th, def_bot_th))
-videos.append(makeObj("DM5-H1-CONTROL-1.avi", def_top_th, def_bot_th))
-videos.append(makeObj("DM5-H1-PGE2D1-2.avi", def_top_th, def_bot_th))
-videos.append(makeObj("DM5-H1-PGE2D2-3.avi", def_top_th, def_bot_th))
-videos.append(makeObj("DM5-H1-SAL-4.avi", def_top_th, def_bot_th))
-videos.append(makeObj("DM5-H2-CONTROL-1.avi", def_top_th, def_bot_th))
-videos.append(makeObj("DM5-H2-OXYD1-2.avi", def_top_th, def_bot_th))
-videos.append(makeObj("DM7-H1-PGE2D1-2.avi", def_top_th, def_bot_th))
-videos.append(makeObj("DM7-H2-CONTROL-1.avi", def_top_th, def_bot_th))
-videos.append(makeObj("DM7-H2-OXYD1-2.avi", def_top_th, def_bot_th))
-videos.append(makeObj("PM1-H1-OXYTOCIN-D1-2-A.avi", def_top_th, def_bot_th))
-videos.append(makeObj("PM1-H1-OXYTOCIN-D1-2-LASXint-A.avi", def_top_th, def_bot_th))
-videos.append(makeObj("PM5-H1-PGE2-D1-2.avi", def_top_th, def_bot_th))
-videos.append(makeObj("PM5-H1-PGE2-D1-2-LASXint.avi", def_top_th, def_bot_th))
-videos.append(makeObj("PM6-H1-CONTROL-1.avi", def_top_th, def_bot_th))
-videos.append(makeObj("PM6-H1-OXY-D1-2.avi", def_top_th, def_bot_th))
-videos.append(makeObj("SM7-CD1-GD3.25-SO-1-BH.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("BPM2-H2-PGE2D1-2.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("BPM3-H1-CONTROL-1.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("CM3-BL6-GD3.25-1-UH.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("CM6-BL6-GD3.5-1-BH.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("DM12-CD1-DIES-V-NPBS-CON-1-BHP-b.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("DM1-H2-PGE2-D1-2-a.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("DM1-H2-SALBUTAMOL-4-b.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("DM3-H2-OXY-D1.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("DM5-H1-CONTROL-1.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("DM5-H1-PGE2D1-2.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("DM5-H1-PGE2D2-3.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("DM5-H1-SAL-4.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("DM5-H2-CONTROL-1.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("DM5-H2-OXYD1-2.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("DM7-H1-PGE2D1-2.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("DM7-H2-CONTROL-1.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("DM7-H2-OXYD1-2.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("PM1-H1-OXYTOCIN-D1-2-A.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("PM1-H1-OXYTOCIN-D1-2-LASXint-A.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("PM5-H1-PGE2-D1-2.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("PM5-H1-PGE2-D1-2-LASXint.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("PM6-H1-CONTROL-1.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("PM6-H1-OXY-D1-2.avi", def_top_th, def_bot_th))
+# videos.append(makeObj("SM7-CD1-GD3.25-SO-1-BH.avi", def_top_th, def_bot_th))
 
 print(F'Processing {len(videos)} videos')
 
@@ -114,6 +113,7 @@ for i, cur_vid in enumerate(videos):
 
     print('Reading Data....')
     all_video, rows, cols, frames = readFramesFromVideoFile(join(data_folder,file_name+'.avi'))
+
     # frames = 100  # Just to make it faster for debugging purposes
     # all_video = all_video[0:frames,:,:]
     cubi_spline_pts_top = int((cols/1000) * pts_per_spline_top)
