@@ -8,7 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
-from scipy.signal import medfilt, argrelextrema
+from scipy.signal import medfilt, argrelextrema 
+from scipy.ndimage import gaussian_filter1d, gaussian_filter
 from FiltersAndUtils import *
 from Utils_Visualization import *
 from Utils_io import *
@@ -28,7 +29,7 @@ def plot_frame(video, frame_idx, title='', display=False, output_folder=''):
 
 def plot_fields(video_name, field, title='', display=False, output_folder=''):
     plt.figure(figsize=(16, 9), dpi=120)
-    plt.imshow(field[::-1], cmap='gray', origin='lower')
+    plt.imshow(field, cmap='gray', origin='lower')
     plt.colorbar(label=title)
     plt.title(f'{title}', fontsize=16)
     plt.xlabel('Column', fontsize=14) 
@@ -46,7 +47,7 @@ def checkDirs(output_folder):
     saveDir(join(output_folder, 'Original'))
 
 
-def process_video(video_name, cur_data_folder, cur_output_folder, display=False):
+def process_video(video_name, cur_data_folder, cur_output_folder, display=False, generate_animation=False):
 
     checkDirs(cur_output_folder)
     file_name = video_name + '.avi'
@@ -140,6 +141,10 @@ def process_video(video_name, cur_data_folder, cur_output_folder, display=False)
     start_time = time.time()
     top_edges = medfilt(top_edges, kernel_size=(1, 5))
     bottom_edges = medfilt(bottom_edges, kernel_size=(1, 5))
+    # Apply gaussian filter to the edges
+    sigma = 3
+    top_edges = gaussian_filter1d(top_edges, sigma=sigma, axis=1)
+    bottom_edges = gaussian_filter1d(bottom_edges, sigma=sigma, axis=1)
 
     # Fill the borders with the last value
     top_edges[:, 0] = top_edges[:, 1]  # Fill left border
@@ -155,10 +160,19 @@ def process_video(video_name, cur_data_folder, cur_output_folder, display=False)
     
     mean_intensity = np.zeros_like(area)
     print(f"Computing mean intensity ...")
+    # print("Smoothing video...")
+    # start_time = time.time()
+    # smoothed_video = gaussian_filter(all_video, sigma=(0,10,10), mode='nearest')
+    # intensity_frame = all_video - smoothed_video
+    # end_time = time.time()
+    # print(f"Done! Time taken: {end_time - start_time:.2f} seconds")
     for i in range(frames):
         for col in range(cols):
-            mean_intensity[i,col] = np.mean(all_video[i, top_edges[i,col]:bottom_edges[i,col], col], axis=0)
+            # mean_intensity[i,col] = np.mean(intensity_frame[i, top_edges[i,col]:bottom_edges[i,col], col])
+            mean_intensity[i,col] = np.mean(all_video[i, top_edges[i,col]:bottom_edges[i,col], col])
     print("Done!")
+    plot_fields(video_name, mean_intensity, title='Mean intensities', display=False, output_folder=steps_folder)
+
     # Plot the top as scattered dots on top of the frame
     # %%
     frame_to_plot = 110
@@ -177,35 +191,37 @@ def process_video(video_name, cur_data_folder, cur_output_folder, display=False)
 
     # %% Make video that shows the top and bottom edges for the first 100 frames
     # Create a figure and axis
-    print('Creating animation...')
-    start_time = time.time()
-    fig, ax = plt.subplots(figsize=(16, 9), dpi=120)
+    if generate_animation:
+        print('Creating animation...')
+        start_time = time.time()
+        fig, ax = plt.subplots(figsize=(20, 3), dpi=150)
 
-    # Function to update the plot for each frame
-    def update(frame_idx):
-        if frame_idx % 10 == 0:
-            print(f'Processing frame {frame_idx}')
-        ax.clear()
-        ax.imshow(all_video[frame_idx,:,:], cmap='gray', aspect='auto')
-        ax.scatter(range(cols), top_edges[frame_idx,:], color='red', s=2, alpha=0.7)
-        ax.scatter(range(cols), bottom_edges[frame_idx,:], color='blue', s=2, alpha=0.7)
-        ax.set_title(f'Top and bottom edges for frame {frame_idx}', fontsize=14)
-        ax.set_xlabel('Column', fontsize=12)
-        ax.set_ylabel('Row', fontsize=12)
-        ax.tick_params(axis='both', which='major', labelsize=10)
+        # Function to update the plot for each frame
+        def update(frame_idx):
+            if frame_idx % 10 == 0:
+                print(f'Processing frame {frame_idx}')
+            ax.clear()
+            ax.imshow(all_video[frame_idx,:,:], cmap='gray', aspect='auto')
+            ax.scatter(range(cols), top_edges[frame_idx,:], color='red', s=2, alpha=0.7)
+            ax.scatter(range(cols), bottom_edges[frame_idx,:], color='blue', s=2, alpha=0.7)
+            ax.set_title(f'Top and bottom edges for frame {frame_idx}', fontsize=14)
+            ax.set_xlabel('Column', fontsize=12)
+            ax.set_ylabel('Row', fontsize=12)
+            ax.tick_params(axis='both', which='major', labelsize=10)
 
-    # Create the animation
-    anim = animation.FuncAnimation(fig, update, frames=100, interval=50)
+        # Create the animation
+        # anim = animation.FuncAnimation(fig, update, frames=all_video.shape[0], interval=50)
+        anim = animation.FuncAnimation(fig, update, frames=200, interval=50)
 
-    # Save the animation as an MP4 file with higher quality
-    writer = animation.FFMpegWriter(fps=30, metadata=dict(artist='Me'), bitrate=5000)
-    anim.save(join(steps_folder, f'edges_animation_high_quality.mp4'), writer=writer)
+        # Save the animation as an MP4 file with higher quality
+        writer = animation.FFMpegWriter(fps=30, metadata=dict(artist='Me'), bitrate=5000)
+        anim.save(join(steps_folder, f'edges_animation_high_quality.mp4'), writer=writer)
 
-    plt.close(fig)
-    end_time = time.time()
-    print(f'Animation creation time: {end_time - start_time:.2f} seconds')
+        plt.close(fig)
+        end_time = time.time()
+        print(f'Animation creation time: {end_time - start_time:.2f} seconds')
 
-    print(f'Done for {video_name}')
+        print(f'Done for {video_name}')
 
     # Plot the top and bottom edges as an image
     plot_fields(video_name, top_edges, title='Top positions', display=display, output_folder=steps_folder)
@@ -215,9 +231,12 @@ def process_video(video_name, cur_data_folder, cur_output_folder, display=False)
     plot_fields(video_name, area, title='Area', display=display, output_folder=steps_folder)
     # Plot the mean intensity as an image
     plot_fields(video_name, mean_intensity, title='Mean intensities', display=display, output_folder=steps_folder)
-    
-# %%
 
+    # Save each of them as csv files
+    np.savetxt(join(steps_folder, f'{video_name}_Top_edges.csv'), top_edges.astype(int), delimiter=',', fmt='%d')
+    np.savetxt(join(steps_folder, f'{video_name}_Bottom_edges.csv'), bottom_edges.astype(int), delimiter=',', fmt='%d')
+    np.savetxt(join(steps_folder, f'{video_name}_Area.csv'), area.astype(int), delimiter=',', fmt='%d')
+    np.savetxt(join(steps_folder, f'{video_name}_Mean_intensity.csv'), mean_intensity.astype(int), delimiter=',', fmt='%d')
 # %% ----------------------------------- MAIN ---------------------------------
 
 videos_path = 'SpecificWaves'
@@ -256,4 +275,4 @@ print(F'Processing {len(videos)} videos')
 # %%
 for cur_video in videos:
     output_folder = join(root_output_folder, cur_video)
-    process_video(cur_video, data_folder, output_folder, display=disp_images)
+    process_video(cur_video, data_folder, output_folder, display=disp_images, generate_animation=True)
